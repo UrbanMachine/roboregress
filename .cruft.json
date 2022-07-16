@@ -1,0 +1,16 @@
+{
+  "template": "git@github.com:UrbanMachine/cookiecutter-python-template.git",
+  "commit": "09a7d963dce3e11e4a6feb2dab061c26311bc986",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "email": "alex@urbanmachine.build",
+      "github_org": "urbanmachine",
+      "project_name": "roboregression",
+      "description": "Project short description.",
+      "version": "0.1.0",
+      "_template": "git@github.com:UrbanMachine/cookiecutter-python-template.git"
+    }
+  },
+  "directory": null
+}
