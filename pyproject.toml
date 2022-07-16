@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "roboregression"
+name = "roboregress"
 version = "0.1.0"
 description = "A system for numerical modeling different configurations of a lumber processing robot."
 authors = ["urbanmachine <alex@urbanmachine.build>"]

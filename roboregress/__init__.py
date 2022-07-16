@@ -1,4 +1,4 @@
-"""**roboregression**
+"""**roboregress**
 
 A system for numerical modeling different configurations of a lumber processing robot.
 """

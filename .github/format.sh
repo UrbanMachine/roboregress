@@ -1,5 +1,5 @@
 #!/bin/bash
 set -euxo pipefail
 
-poetry run isort roboregression/ tests/
-poetry run black roboregression/ tests/
+poetry run isort roboregress/ tests/
+poetry run black roboregress/ tests/
