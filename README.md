@@ -35,3 +35,6 @@ bash .github/format.sh
 ```shell
 bash .github/check_lint.sh
 ```
+
+## Running the Sim
+After running `poetry install`, the script can be run via `run_sim` on the commandline.
