@@ -1,6 +1,6 @@
 {
   "template": "git@github.com:UrbanMachine/cookiecutter-python-template.git",
-  "commit": "560acdfb298e0c81dd1dee9135c6aaade73ba675",
+  "commit": "ed88b9e9267ccc70412513c59878e75bc6f0691b",
   "checkout": null,
   "context": {
     "cookiecutter": {
