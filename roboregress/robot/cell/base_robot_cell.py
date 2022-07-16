@@ -1,7 +1,8 @@
 from abc import ABC
 
-from roboregress.engine import BaseSimObject
 import open3d as o3d
+
+from roboregress.engine import BaseSimObject
 
 
 class BaseRobotCell(BaseSimObject, ABC):
