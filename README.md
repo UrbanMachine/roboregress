@@ -1,5 +1,6 @@
 # roboregression
-Project short description.
+A system for numerical modeling different configurations of a lumber processing robot.
+
 _________________
 
 [![PyPI version](https://badge.fury.io/py/roboregression.svg)](http://badge.fury.io/py/roboregression)

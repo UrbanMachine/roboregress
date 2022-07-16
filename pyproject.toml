@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "roboregression"
 version = "0.1.0"
-description = "Project short description."
+description = "A system for numerical modeling different configurations of a lumber processing robot."
 authors = ["urbanmachine <alex@urbanmachine.build>"]
 license = "Proprietary"
 readme = "README.md"

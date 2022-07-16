@@ -7,7 +7,7 @@
       "email": "alex@urbanmachine.build",
       "github_org": "urbanmachine",
       "project_name": "roboregression",
-      "description": "Project short description.",
+      "description": "A system for numerical modeling different configurations of a lumber processing robot.",
       "version": "0.1.0",
       "_template": "git@github.com:UrbanMachine/cookiecutter-python-template.git"
     }
