@@ -7,7 +7,9 @@ license = "Proprietary"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8,<3.11"
+scipy = "^1.8.1"
+open3d = "^0.15.2"
 
 [tool.poetry.dev-dependencies]
 vulture = "^2.5"
