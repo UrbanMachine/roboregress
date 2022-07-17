@@ -1,6 +1,14 @@
+import math
 from typing import Generator, Optional
 
-from roboregress.engine import BaseSimObject, EngineRuntime
+import pytest
+
+from roboregress.engine import (
+    BaseSimObject,
+    EngineRuntime,
+    NoObjectsToStep,
+    NoTimestampProgression,
+)
 
 
 class BasicObject(BaseSimObject):
@@ -78,3 +86,37 @@ def test_step() -> None:
         obj_small_delay: obj_small_delay.delay * 2,
         obj_large_delay: obj_large_delay.delay * 2,
     }
+
+
+def test_fails_if_step_doesnt_change_timestamp():
+    """Test that an exception is raised if the timestamp isn't incremented between
+    two steps"""
+    engine = EngineRuntime()
+    obj_a = BasicObject(delay=None)
+    obj_b = BasicObject(delay=None)
+
+    engine.register(obj_a)
+    engine.register(obj_b)
+
+    with pytest.raises(NoTimestampProgression):
+        engine.step_until(timestamp=100)
+
+    assert obj_a.call_count == 2
+    assert obj_a.call_count == 2
+
+
+def test_stepping_without_objects_fails():
+    engine = EngineRuntime()
+    with pytest.raises(NoObjectsToStep):
+        engine.step()
+
+
+def test_step_until():
+    engine = EngineRuntime()
+    obj_a = BasicObject(delay=1.1)
+    engine.register(obj_a)
+
+    engine.step_until(100)
+
+    assert obj_a.call_count == 92
+    assert math.isclose(engine.timestamp, 100.1)
