@@ -6,7 +6,7 @@ class WoodSurface:
 
 
 class InfinitePlank:
-    def __init__(self):
+    def __init__(self) -> None:
         self.top = WoodSurface()
         self.right = WoodSurface()
         self.bottom = WoodSurface()
