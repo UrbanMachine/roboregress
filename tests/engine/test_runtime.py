@@ -3,12 +3,7 @@ from typing import Generator, Optional
 
 import pytest
 
-from roboregress.engine import (
-    BaseSimObject,
-    EngineRuntime,
-    NoObjectsToStep,
-    NoTimestampProgression,
-)
+from roboregress.engine import BaseSimObject, EngineRuntime, NoObjectsToStep, NoTimestampProgression
 
 
 class BasicObject(BaseSimObject):

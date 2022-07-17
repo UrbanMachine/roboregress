@@ -1,8 +1,9 @@
 from abc import ABC
-
-import open3d as o3d
+from typing import List
 
 from roboregress.engine import BaseSimObject
+from roboregress.robot.surfaces import Surface
+from roboregress.robot.wood import InfinitePlank
 
 
 class BaseRobotCell(BaseSimObject, ABC):

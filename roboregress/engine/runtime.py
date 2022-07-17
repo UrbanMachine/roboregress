@@ -31,7 +31,10 @@ class EngineRuntime:
         self._sim_objects.add(sim_object)
 
     def step(self) -> None:
-        """"""
+        """Step the simulation
+
+        :raises NoObjectsToStep: If the runtime has no objects registered
+        """
         if len(self._sim_objects) == 0:
             raise NoObjectsToStep("The runtime has no associated objects!")
 
@@ -57,7 +60,7 @@ class EngineRuntime:
     def step_until(self, timestamp: float) -> None:
         """Run the engine until it is at or past the specified timestamp"""
         consecutive_steps_without_change = 0
-        """Track if theres ever more than 1 step in a row where the timestamp didn't 
+        """Track if theres ever more than 1 step in a row where the timestamp didn't
         increment. This can happen if the objects aren't yielding sleeps, which means
         the user of this runtime isn't actually doing anything useful with it...
         """

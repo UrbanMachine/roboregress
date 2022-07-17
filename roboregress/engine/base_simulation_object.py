@@ -21,10 +21,9 @@ class BaseSimObject(ABC):
         """A generator that yields either None or a float.
 
         :yields: The amount of time to sleep for, or None
-        - If None, that means that the function wants to yield back to the runtime,
-          until the all other `run` loops have been called.
+            - If None, that means that the function wants to yield back to the runtime,
+              until the all other `run` loops have been called.
 
-        - If a number, that means don't continue this function until the timestamp has
-          incremented that exact amount.
-
+            - If a number, that means don't continue this function until the timestamp has
+              incremented that exact amount.
         """

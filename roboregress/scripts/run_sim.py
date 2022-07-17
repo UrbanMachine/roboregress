@@ -1,8 +1,11 @@
 from argparse import ArgumentParser
+from typing import List
 
 from roboregress.engine import EngineRuntime
-from roboregress.robot.cell import BaseRobotCell
-from roboregress.robot.planner import BaseWoodPlanner
+from roboregress.robot.cell import BaseRobotCell, RakeCell
+from roboregress.robot.planner import DumbWoodPlanner
+from roboregress.robot.surfaces import Surface
+from roboregress.robot.wood import InfinitePlank
 
 
 def main() -> None:
