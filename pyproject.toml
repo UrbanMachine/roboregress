@@ -12,6 +12,7 @@ scipy = "^1.8.1"
 open3d = "^0.15.2"
 
 [tool.poetry.dev-dependencies]
+darglint = "^1.8.1"
 vulture = "^2.5"
 bandit = "^1.7"
 isort = "^5.10"
