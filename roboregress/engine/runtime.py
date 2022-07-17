@@ -55,7 +55,9 @@ class SimulationRuntime:
             sleep_seconds = sim_object.step()
             if sleep_seconds is not None:
                 assert isinstance(sleep_seconds, float)
-                self._sleeping_objects[sim_object] = self.timestamp + sleep_seconds
+                # Round at 10 decimal places to help prevent floating point drift
+                next_awake = round(self.timestamp + sleep_seconds, 10)
+                self._sleeping_objects[sim_object] = next_awake
 
     def step_until(self, timestamp: float) -> None:
         """Run the engine until it is at or past the specified timestamp"""

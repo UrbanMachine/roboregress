@@ -116,7 +116,7 @@ def test_step_until():
     obj_a = BasicObject(delay=1.1)
     runtime.register(obj_a)
 
-    runtime.step_until(100)
+    runtime.step_until(10000)
 
-    assert obj_a.call_count == 92
-    assert math.isclose(runtime.timestamp, 100.1)
+    assert obj_a.call_count == 9092
+    assert runtime.timestamp == 10000.1
