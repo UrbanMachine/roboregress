@@ -1,2 +1,2 @@
 from .base_simulation_object import BaseSimObject
-from .runtime import SimulationRuntime, NoObjectsToStep, NoTimestampProgression
+from .runtime import NoObjectsToStep, NoTimestampProgression, SimulationRuntime

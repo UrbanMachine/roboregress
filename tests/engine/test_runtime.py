@@ -5,9 +5,9 @@ import pytest
 
 from roboregress.engine import (
     BaseSimObject,
-    SimulationRuntime,
     NoObjectsToStep,
     NoTimestampProgression,
+    SimulationRuntime,
 )
 
 
