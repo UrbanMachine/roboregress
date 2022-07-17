@@ -3,6 +3,14 @@ from typing import Dict, Set
 from roboregress.engine import BaseSimObject
 
 
+class NoObjectsToStep(Exception):
+    pass
+
+
+class NoTimestampProgression(Exception):
+    pass
+
+
 class EngineRuntime:
     """An object that can run the simulation engine"""
 
@@ -24,6 +32,9 @@ class EngineRuntime:
 
     def step(self) -> None:
         """"""
+        if len(self._sim_objects) == 0:
+            raise NoObjectsToStep("The runtime has no associated objects!")
+
         # Get the next-to-awake timestamp in the _sleeping_objects list
         if len(self._sleeping_objects):
             next_awake_timestamp = sorted(self._sleeping_objects.values())[0]
@@ -45,5 +56,26 @@ class EngineRuntime:
 
     def step_until(self, timestamp: float) -> None:
         """Run the engine until it is at or past the specified timestamp"""
+        consecutive_steps_without_change = 0
+        """Track if theres ever more than 1 step in a row where the timestamp didn't 
+        increment. This can happen if the objects aren't yielding sleeps, which means
+        the user of this runtime isn't actually doing anything useful with it...
+        """
+
         while self._timestamp < timestamp:
-            self._step()
+            # TODO: Add a check to make sure timestamp changes between consecutive runs
+            previous_stamp = self.timestamp
+            self.step()
+
+            if previous_stamp == self.timestamp:
+                consecutive_steps_without_change += 1
+            else:
+                consecutive_steps_without_change = 0
+
+            if consecutive_steps_without_change > 1:
+                raise NoTimestampProgression(
+                    f"There have been {consecutive_steps_without_change} simulation "
+                    f"steps in a row without the timestamp changing. This means that "
+                    f"the simulation objects in the engine aren't requesting sleeps! "
+                    f"Is there a logic error somewhere?"
+                )
