@@ -40,3 +40,9 @@ implicit_reexport = true
 # We can't add annotations to decorators from other libraries, making this
 # check not very useful
 disallow_untyped_decorators = false
+
+[tool.bandit]
+skips = [
+    # Allow usage of assertions
+    "B101"
+]
