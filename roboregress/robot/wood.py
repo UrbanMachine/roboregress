@@ -5,7 +5,7 @@ class WoodSurface:
     pass
 
 
-class InfinitePlank:
+class Wood:
     def __init__(self) -> None:
         self.top = WoodSurface()
         self.right = WoodSurface()
