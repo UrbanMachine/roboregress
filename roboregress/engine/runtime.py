@@ -11,7 +11,7 @@ class NoTimestampProgression(Exception):
     pass
 
 
-class EngineRuntime:
+class SimulationRuntime:
     """An object that can run the simulation engine"""
 
     def __init__(self) -> None:

@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from typing import List
 
-from roboregress.engine import EngineRuntime
+from roboregress.engine import SimulationRuntime
 from roboregress.robot.cell import BaseRobotCell, RakeCell
 from roboregress.robot.planner import DumbWoodPlanner
 from roboregress.robot.surfaces import Surface
