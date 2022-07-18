@@ -94,6 +94,7 @@ class Wood:
         :param n_fasteners_to_sample: The number of fasteners to 'sample' for a pick.
             This is useful for things like a rake that can attempt multiple picks at
             once. If None, all fasteners in the range will be 'attempted' at once.
+        :raises ValueError: If invalid parameters
         :return: The types of successfully picked fasteners
         """
         if self._ongoing_work > 0:
@@ -110,17 +111,12 @@ class Wood:
             self._fasteners[:, _POSITION_IDX] <= end_pos,
         )
         fasteners_on_surface_mask = self._fasteners[:, _SURFACE_IDX] == from_surface
-        pickable_fasteners_mask = np.logical_and(
-            fasteners_in_range_mask, fasteners_on_surface_mask
-        )
+        pickable_fasteners_mask = np.logical_and(fasteners_in_range_mask, fasteners_on_surface_mask)
 
         pickable_fasteners = self._fasteners[pickable_fasteners_mask]
 
         # Randomly select up to 'n_fasteners_to_sample' from the group
-        if (
-            n_fasteners_to_sample is None
-            or len(pickable_fasteners) <= n_fasteners_to_sample
-        ):
+        if n_fasteners_to_sample is None or len(pickable_fasteners) <= n_fasteners_to_sample:
             fasteners_to_attempt = pickable_fasteners
         else:
             choices = np.random.choice(

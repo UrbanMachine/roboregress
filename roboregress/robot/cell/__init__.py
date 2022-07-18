@@ -1,5 +1,5 @@
 from .base_robot_cell import BaseRobotCell
-from .big_bird import BigBirdCell
-from .rake import RakeCell
+from .big_bird import BigBird
+from .rake import Rake
 
-__all__ = ["BaseRobotCell", "RakeCell", "BigBirdCell"]
+__all__ = ["BaseRobotCell", "Rake", "BigBird"]
