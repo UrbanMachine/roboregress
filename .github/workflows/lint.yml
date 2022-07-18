@@ -31,7 +31,9 @@ jobs:
           poetry install
 
       - name: Allow cloning from github
-        run: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Lint
         run: .github/check_lint.sh
