@@ -35,7 +35,6 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
             try:
                 with self._wood.work_lock():
                     _, pick_time = self._run_pick()
-                    print(_)
                     yield pick_time
             except MoveScheduled:
                 # No new work is allowed, a wood movement has been scheduled
