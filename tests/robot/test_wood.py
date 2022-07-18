@@ -73,6 +73,7 @@ def test_moving_wood_when_not_ready():
         (None, {f: 0.0 for f in Fastener}, 0),
         (1000, {f: 0.0 for f in Fastener}, 0),
         (1000, {f: 1.0 for f in Fastener}, 20),
+        (1000, {}, 0),
     ),
 )
 def test_pick(

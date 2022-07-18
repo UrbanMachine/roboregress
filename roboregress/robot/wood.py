@@ -128,7 +128,7 @@ class Wood:
         picks: List[Fastener] = []
         for fastener in fasteners_to_attempt:
             fastener_type = fastener[_FASTENER_IDX]
-            pick_probability = pick_probabilities[fastener_type]
+            pick_probability = pick_probabilities.get(fastener_type, 0.0)
             if random.random() > pick_probability:
                 # The pick failed
                 continue
