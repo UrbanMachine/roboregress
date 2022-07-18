@@ -75,7 +75,7 @@ def test_moving_wood_when_not_ready():
         (1000, {f: 1.0 for f in Fastener}, 20),
     ),
 )
-def test_pick_with_number(
+def test_pick(
     n_fasteners_to_sample: Optional[int],
     pick_probabilities: Dict[Fastener, float],
     expected_min_picks: int,
@@ -96,6 +96,21 @@ def test_pick_with_number(
     )
     assert len(picked_fasteners) >= expected_min_picks
     assert len(fasteners_arr_before) - len(wood._fasteners) == len(picked_fasteners)
+
+
+def test_pick_null_fasteners():
+    """Validate that running 'pick' when there are no fasteners doesn't break"""
+    wood = Wood(parameters=_ZERO_DENSITY_PARAMS)
+    wood.move(100)
+
+    picked_fasteners = wood.pick(
+        from_surface=Surface.TOP,
+        n_fasteners_to_sample=9999,
+        pick_probabilities={f: 1.0 for f in Fastener},
+        start_pos=0,
+        end_pos=10,
+    )
+    assert len(picked_fasteners) == 0
 
 
 def test_moving_with_no_fastener_density():

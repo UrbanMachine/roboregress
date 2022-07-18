@@ -96,11 +96,14 @@ class Wood:
             once. If None, all fasteners in the range will be 'attempted' at once.
         :return: The types of successfully picked fasteners
         """
-        if self._ongoing_work == 0:
+        if self._ongoing_work > 0:
             raise ValueError("Hey, you must acquire the work lock in order to operate!")
 
         if start_pos < 0 or end_pos <= 0 or start_pos >= end_pos:
             raise ValueError(f"Invalid pick range! {start_pos=} {end_pos=}")
+
+        if self._fasteners is None:
+            return []
 
         fasteners_in_range_mask = np.logical_and(
             self._fasteners[:, _POSITION_IDX] > start_pos,
