@@ -1,3 +1,5 @@
+from typing import Dict, Optional
+
 import numpy as np
 import pytest
 
@@ -63,6 +65,39 @@ def test_moving_wood_when_not_ready():
     wood.move(10)
 
 
+@pytest.mark.parametrize(
+    ("n_fasteners_to_sample", "pick_probabilities", "expected_min_picks"),
+    (
+        (5, {f: 1.0 for f in Fastener}, 5),
+        (None, {f: 1.0 for f in Fastener}, 20),
+        (None, {f: 0.0 for f in Fastener}, 0),
+        (1000, {f: 0.0 for f in Fastener}, 0),
+        (1000, {f: 1.0 for f in Fastener}, 20),
+    ),
+)
+def test_pick_with_number(
+    n_fasteners_to_sample: Optional[int],
+    pick_probabilities: Dict[Fastener, float],
+    expected_min_picks: int,
+):
+    wood = Wood(parameters=_SOME_PARAMETERS)
+
+    # Move some wood into 'view'
+    wood.move(10)
+
+    # Try picking 5 fasteners
+    fasteners_arr_before = np.copy(wood._fasteners)
+    picked_fasteners = wood.pick(
+        from_surface=Surface.TOP,
+        n_fasteners_to_sample=n_fasteners_to_sample,
+        pick_probabilities=pick_probabilities,
+        start_pos=0,
+        end_pos=10,
+    )
+    assert len(picked_fasteners) >= expected_min_picks
+    assert len(fasteners_arr_before) - len(wood._fasteners) == len(picked_fasteners)
+
+
 def test_moving_with_no_fastener_density():
     """Test the wood can be translated despite 0 density"""
     wood = Wood(parameters=_ZERO_DENSITY_PARAMS)
@@ -81,6 +116,7 @@ def test_moving_with_no_fastener_density():
 def test_moving_wood():
     """Test that moving the wood translates the board and generates more board to
     backfill the buffer"""
+
     wood = Wood(parameters=_SOME_PARAMETERS)
     wood.schedule_move()
     assert wood._no_new_work
@@ -119,12 +155,16 @@ def _validate_fasteners_array(wood: Wood):
     assert len(set(fasteners[:, _POSITION_IDX])) == len(fasteners)
 
     # Validate fastener counts are close to the expected densities
-    fastener_counts = {ft: np.count_nonzero(fasteners[:, _FASTENER_IDX] == ft) for ft in Fastener}
+    fastener_counts = {
+        ft: np.count_nonzero(fasteners[:, _FASTENER_IDX] == ft) for ft in Fastener
+    }
     # Quick logic check to make sure the test functions as expected
     assert sum(c for c in fastener_counts.values()) == len(fasteners)
 
     for fastener_type, fastener_count in fastener_counts.items():
-        expected_count = round(wood._params.fastener_densities[fastener_type] * wood.board_length)
+        expected_count = round(
+            wood._params.fastener_densities[fastener_type] * wood.board_length
+        )
         assert np.isclose(expected_count, fastener_count)
 
     # Validate the types in each index of the array

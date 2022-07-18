@@ -1,6 +1,6 @@
 import contextlib
 import random
-from typing import Dict, Generator, Optional
+from typing import Dict, Generator, List, Optional
 
 import numpy as np
 import numpy.typing as npt
@@ -68,12 +68,79 @@ class Wood:
 
     @contextlib.contextmanager
     def work_lock(self) -> Generator[None, None, None]:
+        """Lock the workpiece in order to pick"""
         if self._no_new_work:
             raise MoveScheduled()
 
         self._ongoing_work += 1
         yield
         self._ongoing_work -= 1
+
+    def pick(
+        self,
+        from_surface: Surface,
+        start_pos: float,
+        end_pos: float,
+        pick_probabilities: Dict[Fastener, float],
+        n_fasteners_to_sample: Optional[int] = 1,
+    ) -> List[Fastener]:
+        """
+
+        :param from_surface: What surface to attempt picking from
+        :param start_pos: The 'start' of the picking range
+        :param end_pos: The 'end' of the picking range
+        :param pick_probabilities: The probability of picking any of the types of
+            fasteners
+        :param n_fasteners_to_sample: The number of fasteners to 'sample' for a pick.
+            This is useful for things like a rake that can attempt multiple picks at
+            once. If None, all fasteners in the range will be 'attempted' at once.
+        :return: The types of successfully picked fasteners
+        """
+        if self._ongoing_work == 0:
+            raise ValueError("Hey, you must acquire the work lock in order to operate!")
+
+        if start_pos < 0 or end_pos <= 0 or start_pos >= end_pos:
+            raise ValueError(f"Invalid pick range! {start_pos=} {end_pos=}")
+
+        fasteners_in_range_mask = np.logical_and(
+            self._fasteners[:, _POSITION_IDX] > start_pos,
+            self._fasteners[:, _POSITION_IDX] <= end_pos,
+        )
+        fasteners_on_surface_mask = self._fasteners[:, _SURFACE_IDX] == from_surface
+        pickable_fasteners_mask = np.logical_and(
+            fasteners_in_range_mask, fasteners_on_surface_mask
+        )
+
+        pickable_fasteners = self._fasteners[pickable_fasteners_mask]
+
+        # Randomly select up to 'n_fasteners_to_sample' from the group
+        if (
+            n_fasteners_to_sample is None
+            or len(pickable_fasteners) <= n_fasteners_to_sample
+        ):
+            fasteners_to_attempt = pickable_fasteners
+        else:
+            choices = np.random.choice(
+                len(pickable_fasteners), n_fasteners_to_sample, replace=False
+            )
+            assert len(choices) == n_fasteners_to_sample
+            fasteners_to_attempt = pickable_fasteners[choices]
+
+        picks: List[Fastener] = []
+        for fastener in fasteners_to_attempt:
+            fastener_type = fastener[_FASTENER_IDX]
+            pick_probability = pick_probabilities[fastener_type]
+            if random.random() > pick_probability:
+                # The pick failed
+                continue
+
+            # Proceed to remove the fastener from the array
+            index = np.where(np.all(self._fasteners == fastener, axis=-1))[0][0]
+            self._fasteners = np.delete(self._fasteners, index, axis=0)
+
+            # Track the pick
+            picks.append(fastener_type)
+        return picks
 
     def schedule_move(self) -> None:
         self._no_new_work = True
@@ -150,6 +217,10 @@ class Wood:
                 ]
             )
             if len(new_fasteners):
-                board = new_fasteners if board is None else np.concatenate((board, new_fasteners))
+                board = (
+                    new_fasteners
+                    if board is None
+                    else np.concatenate((board, new_fasteners))
+                )
 
         return board
