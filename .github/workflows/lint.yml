@@ -30,5 +30,10 @@ jobs:
           python -m pip install --upgrade poetry
           poetry install
 
+      - name: Allow cloning from github, so `cruft` can run
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
       - name: Lint
         run: .github/check_lint.sh
