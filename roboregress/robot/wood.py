@@ -148,10 +148,6 @@ class Wood:
                 ]
             )
             if len(new_fasteners):
-                board = (
-                    new_fasteners
-                    if board is None
-                    else np.concatenate((board, new_fasteners))
-                )
+                board = new_fasteners if board is None else np.concatenate((board, new_fasteners))
 
         return board

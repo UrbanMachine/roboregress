@@ -119,16 +119,12 @@ def _validate_fasteners_array(wood: Wood):
     assert len(set(fasteners[:, _POSITION_IDX])) == len(fasteners)
 
     # Validate fastener counts are close to the expected densities
-    fastener_counts = {
-        ft: np.count_nonzero(fasteners[:, _FASTENER_IDX] == ft) for ft in Fastener
-    }
+    fastener_counts = {ft: np.count_nonzero(fasteners[:, _FASTENER_IDX] == ft) for ft in Fastener}
     # Quick logic check to make sure the test functions as expected
     assert sum(c for c in fastener_counts.values()) == len(fasteners)
 
     for fastener_type, fastener_count in fastener_counts.items():
-        expected_count = round(
-            wood._params.fastener_densities[fastener_type] * wood.board_length
-        )
+        expected_count = round(wood._params.fastener_densities[fastener_type] * wood.board_length)
         assert np.isclose(expected_count, fastener_count)
 
     # Validate the types in each index of the array
