@@ -53,7 +53,7 @@ class Wood:
         position, the second index is the surface, and the third index is the type of
         fastener."""
 
-        self._total_translated = 0
+        self._total_translated = 0.0
         """The amount of translation the board has gone through"""
 
     @property
@@ -85,6 +85,8 @@ class Wood:
         """Translate the wood forward
 
         :param distance: Distance to move wood, in meters
+        :raises ValueError: If the distance is negative
+        :raises MovedWhileWorkActive: If called while a picker is active on the wood
         """
         if distance <= 0:
             raise ValueError("Hey now, distance must be nonzero and positive!")
