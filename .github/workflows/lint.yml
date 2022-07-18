@@ -30,5 +30,8 @@ jobs:
           python -m pip install --upgrade poetry
           poetry install
 
+      - name: Allow cloning from github
+        run: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
       - name: Lint
         run: .github/check_lint.sh
