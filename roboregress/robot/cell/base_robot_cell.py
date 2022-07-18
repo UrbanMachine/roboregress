@@ -5,9 +5,7 @@ from pydantic import BaseModel
 
 from roboregress.engine import BaseSimObject
 from roboregress.engine.base_simulation_object import LoopGenerator
-from roboregress.robot.fasteners import Fastener
-from roboregress.robot.surfaces import Surface
-from roboregress.robot.wood import MoveScheduled, Wood
+from roboregress.wood import Fastener, MoveScheduled, Surface, Wood
 
 BaseParams = TypeVar("BaseParams", bound="BaseRobotCell.Parameters")
 

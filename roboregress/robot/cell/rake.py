@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
-from ..fasteners import Fastener
+from roboregress.wood.fasteners import Fastener
+
 from .base_robot_cell import BaseRobotCell
 
 

@@ -3,9 +3,7 @@ from typing import List
 from roboregress.engine import SimulationRuntime
 from roboregress.robot.cell import BaseRobotCell, BigBird, Rake
 from roboregress.robot.conveyor import DumbWoodConveyor
-from roboregress.robot.fasteners import Fastener
-from roboregress.robot.surfaces import Surface
-from roboregress.robot.wood import Wood
+from roboregress.wood import Fastener, Surface, Wood
 
 
 def main() -> None:

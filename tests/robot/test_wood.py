@@ -3,9 +3,8 @@ from typing import Dict, Optional
 import numpy as np
 import pytest
 
-from roboregress.robot.fasteners import Fastener
-from roboregress.robot.surfaces import Surface
-from roboregress.robot.wood import (
+from roboregress.wood import Fastener, Surface
+from roboregress.wood.wood import (
     _FASTENER_BUFFER_LEN,
     _FASTENER_IDX,
     _POSITION_IDX,

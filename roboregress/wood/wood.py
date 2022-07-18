@@ -6,8 +6,8 @@ import numpy as np
 import numpy.typing as npt
 from pydantic import BaseModel
 
-from roboregress.robot.fasteners import Fastener
-from roboregress.robot.surfaces import Surface
+from .fasteners import Fastener
+from .surfaces import Surface
 
 
 class MoveScheduled(Exception):
