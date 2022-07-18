@@ -26,9 +26,9 @@ class SimulationRuntime:
         """A read-only getter for the timestamp property"""
         return self._timestamp
 
-    def register(self, sim_object: BaseSimObject) -> None:
+    def register(self, *sim_objects: BaseSimObject) -> None:
         """Register a new sim object with the runtime"""
-        self._sim_objects.add(sim_object)
+        self._sim_objects.update(sim_objects)
 
     def step(self) -> None:
         """Step the simulation

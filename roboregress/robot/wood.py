@@ -97,7 +97,7 @@ class Wood:
         :raises ValueError: If invalid parameters
         :return: The types of successfully picked fasteners
         """
-        if self._ongoing_work > 0:
+        if self._ongoing_work == 0:
             raise ValueError("Hey, you must acquire the work lock in order to operate!")
 
         if start_pos < 0 or end_pos <= 0 or start_pos >= end_pos:
@@ -216,10 +216,6 @@ class Wood:
                 ]
             )
             if len(new_fasteners):
-                board = (
-                    new_fasteners
-                    if board is None
-                    else np.concatenate((board, new_fasteners))
-                )
+                board = new_fasteners if board is None else np.concatenate((board, new_fasteners))
 
         return board
