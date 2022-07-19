@@ -1,5 +1,5 @@
-from typing import List
 from argparse import ArgumentParser
+from typing import List
 
 from roboregress.engine import SimulationRuntime
 from roboregress.robot.cell import BaseRobotCell, BigBird, Rake
@@ -63,8 +63,8 @@ def main() -> None:
         params=DumbWoodConveyor.Parameters(move_increment=0.5, move_speed=0.25),
     )
 
-    runtime.register(planner, *cells)
-    runtime.step_until(timestamp=10000)
+    runtime.register(planner, wood, *cells)
+    runtime.step_until(timestamp=10000, visualization=args.visualize)
     print("Finished Simulation!")
 
 

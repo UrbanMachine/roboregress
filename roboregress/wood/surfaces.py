@@ -19,9 +19,16 @@ class Surface(Enum):
 
 
 SURFACE_NORMALS: Dict[Surface, Tuple[float, float, float]] = {
-    Surface.TOP: (0, 0, 1),
-    Surface.BOTTOM: (0, 0, -1),
-    Surface.LEFT: (0, 1, 0),
-    Surface.RIGHT: (0, -1, 0),
+    Surface.TOP: (0.0, 0.0, 1.0),
+    Surface.BOTTOM: (0.0, 0.0, -1.0),
+    Surface.LEFT: (0.0, 1.0, 0.0),
+    Surface.RIGHT: (0.0, -1.0, 0.0),
 }
 """Useful for visualizations"""
+
+SURFACE_COLORS: Dict[Surface, Tuple[float, float, float]] = {
+    Surface.TOP: (0.0, 0.0, 1.0),
+    Surface.BOTTOM: (0.5, 0.5, 1.0),
+    Surface.LEFT: (0.0, 1.0, 0.0),
+    Surface.RIGHT: (0.5, 1.0, 0.5),
+}

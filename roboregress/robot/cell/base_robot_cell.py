@@ -8,7 +8,11 @@ from pydantic import BaseModel
 
 from roboregress.engine import BaseSimObject
 from roboregress.engine.base_simulation_object import LoopGenerator
-from roboregress.robot.vis_constants import ROBOT_DIST_FROM_CELL_CENTER, ROBOT_HEIGHT, ROBOT_WIDTH
+from roboregress.robot.vis_constants import (
+    ROBOT_DIST_FROM_CELL_CENTER,
+    ROBOT_HEIGHT,
+    ROBOT_WIDTH,
+)
 from roboregress.wood import SURFACE_NORMALS, Fastener, MoveScheduled, Surface, Wood
 
 BaseParams = TypeVar("BaseParams", bound="BaseRobotCell.Parameters")
@@ -62,3 +66,20 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
     def _run_pick(self) -> Tuple[List[Fastener], float]:
         """Do the smallest amount of picking that this robot can do in a single unit,
         and return how many seconds it took to do it."""
+
+    def draw(self) -> List[o3d.geometry.Geometry]:
+        surface_dir = np.array(SURFACE_NORMALS[self._params.pickable_surface])
+        position = surface_dir * ROBOT_DIST_FROM_CELL_CENTER
+        position += (self.center, 0, 0)
+
+        box: o3d.geometry.TriangleMesh = o3d.geometry.TriangleMesh.create_box(
+            width=self.width, height=ROBOT_HEIGHT, depth=ROBOT_WIDTH
+        )
+
+        # Orient the rectangle to 'face' the surface it corresponds to
+        if position[1] == 0:
+            box.rotate(box.get_rotation_matrix_from_xyz((pi / 2, 0, 0)))
+
+        box.translate(position)
+        box.paint_uniform_color(self.color)
+        return [box]
