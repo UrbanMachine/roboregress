@@ -95,4 +95,4 @@ class SimulationRuntime:
                     [o.draw() for o in self._sim_objects], []
                 )
                 geometries.append(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3))
-                visualizer.draw(geometries)
+                visualizer.draw(geometries, self.timestamp)
