@@ -80,6 +80,6 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
         if position[1] == 0:
             box.rotate(box.get_rotation_matrix_from_xyz((pi / 2, 0, 0)))
 
-        box.translate(position)
+        box.translate(position - box.get_center())
         box.paint_uniform_color(self.color)
         return [box]
