@@ -26,6 +26,7 @@ pytest-cov = "^3.0"
 pep8-naming = "^0.13.1"
 portray = "^1.7"
 cruft = "^2.10"
+types-PyYAML = "^6.0.10"
 
 [tool.poetry.scripts]
 run_sim = "roboregress.scripts.run_sim:main"
