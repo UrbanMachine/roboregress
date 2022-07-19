@@ -88,13 +88,14 @@ def test_pick(
     # Try picking 5 fasteners
     fasteners_arr_before = np.copy(wood._fasteners)
     with wood.work_lock():
-        picked_fasteners = wood.pick(
+        picked_fasteners, attempted_pick = wood.pick(
             from_surface=Surface.TOP,
             n_fasteners_to_sample=n_fasteners_to_sample,
             pick_probabilities=pick_probabilities,
             start_pos=0,
             end_pos=10,
         )
+    assert attempted_pick is (expected_min_picks > 0)
     assert len(picked_fasteners) >= expected_min_picks
     assert len(fasteners_arr_before) - len(wood._fasteners) == len(picked_fasteners)
 
@@ -105,13 +106,14 @@ def test_pick_null_fasteners():
     wood.move(100)
 
     with wood.work_lock():
-        picked_fasteners = wood.pick(
+        picked_fasteners, attempted_pick = wood.pick(
             from_surface=Surface.TOP,
             n_fasteners_to_sample=9999,
             pick_probabilities={f: 1.0 for f in Fastener},
             start_pos=0,
             end_pos=10,
         )
+        assert not attempted_pick
         assert len(picked_fasteners) == 0
 
 
