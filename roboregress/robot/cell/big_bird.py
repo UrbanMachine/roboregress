@@ -13,12 +13,12 @@ class BigBird(BaseRobotCell["BigBird.Parameters"]):
         """The seconds it takes to pick a fastener, for BigBird"""
 
     def _run_pick(self) -> Tuple[List[Fastener], float]:
-        fasteners = self._wood.pick(
-            start_pos=self._params.start_pos,
-            end_pos=self._params.end_pos,
-            from_surface=self._params.pickable_surface,
-            pick_probabilities=self._params.pick_probabilities,
+        fasteners, attempted_pick = self._wood.pick(
+            start_pos=self.params.start_pos,
+            end_pos=self.params.end_pos,
+            from_surface=self.params.pickable_surface,
+            pick_probabilities=self.params.pick_probabilities,
             # Big bird can only pick one fastener at a time
             n_fasteners_to_sample=1,
         )
-        return fasteners, self._params.big_bird_pick_seconds
+        return fasteners, self.params.big_bird_pick_seconds if attempted_pick else 0
