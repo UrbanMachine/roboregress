@@ -10,8 +10,8 @@ from pydantic import BaseModel
 from ..engine import BaseSimObject
 from ..engine.base_simulation_object import LoopGenerator
 from ..robot.vis_constants import WOOD_DIST_FROM_CELL_CENTER
-from .fasteners import Fastener
-from .surfaces import SURFACE_COLORS, SURFACE_NORMALS, Surface
+from .fasteners import FASTENER_COLORS, Fastener
+from .surfaces import SURFACE_NORMALS, Surface
 
 
 class MoveScheduled(Exception):
@@ -238,20 +238,22 @@ class Wood(BaseSimObject):
             return []
 
         point_cloud = o3d.geometry.PointCloud()
-        for surface in Surface:
+        for fastener_type in Fastener:
             # Create the list of points representing the fasteners on this surface
-            fasteners = self._fasteners[self._fasteners[:, _SURFACE_IDX] == surface]
+            fasteners = self._fasteners[self._fasteners[:, _FASTENER_IDX] == fastener_type]
             points_on_surface = np.zeros((len(fasteners), 3))
-            points_on_surface[:, 0] = fasteners[:, _POSITION_IDX]
+            points_on_surface[:, 0] = fasteners[:, _POSITION_IDX].copy()
 
             # Translate it so the line of points is 'closer' to the appropriate surface
-            translate = np.array(SURFACE_NORMALS[surface]) * WOOD_DIST_FROM_CELL_CENTER
-            points_on_surface += translate
+            for i in range(len(points_on_surface)):
+                surface = fasteners[i, _SURFACE_IDX]
+                translate = np.array(SURFACE_NORMALS[surface]) * WOOD_DIST_FROM_CELL_CENTER
+                points_on_surface[i] += translate
 
             # Create the point cloud and paint it appropriately
             surface_cloud = o3d.geometry.PointCloud()
             surface_cloud.points = o3d.utility.Vector3dVector(points_on_surface)
-            surface_cloud.paint_uniform_color(SURFACE_COLORS[surface])
+            surface_cloud.paint_uniform_color(FASTENER_COLORS[fastener_type])
             point_cloud += surface_cloud
 
         return [point_cloud]
