@@ -94,4 +94,5 @@ class SimulationRuntime:
                 geometries: List[o3d.geometry.Geometry] = sum(
                     [o.draw() for o in self._sim_objects], []
                 )
+                geometries.append(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3))
                 visualizer.draw(geometries)
