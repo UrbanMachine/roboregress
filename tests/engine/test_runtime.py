@@ -1,5 +1,6 @@
-from typing import Generator, Optional
+from typing import Generator, Optional, List
 
+import open3d as o3d
 import pytest
 
 from roboregress.engine import (
@@ -20,6 +21,9 @@ class BasicObject(BaseSimObject):
         while True:
             self.call_count += 1
             yield self.delay
+
+    def draw(self) -> List[o3d.geometry.Geometry]:
+        return []
 
 
 def test_step() -> None:
