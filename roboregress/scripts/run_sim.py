@@ -42,8 +42,8 @@ def main() -> None:
         *(
             BigBird(
                 parameters=BigBird.Parameters(
-                    start_pos=1,
-                    end_pos=2,
+                    start_pos=1.1,
+                    end_pos=2.1,
                     pickable_surface=surface,
                     pick_probabilities={
                         Fastener.OFFSET_NAIL: 0.8,

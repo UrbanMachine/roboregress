@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
+from math import pi
 from typing import Dict, Generic, List, Tuple, TypeVar
 
+import numpy as np
+import open3d as o3d
 from pydantic import BaseModel
 
 from roboregress.engine import BaseSimObject
 from roboregress.engine.base_simulation_object import LoopGenerator
-from roboregress.wood import Fastener, MoveScheduled, Surface, Wood
+from roboregress.robot.vis_constants import ROBOT_DIST_FROM_CELL_CENTER, ROBOT_HEIGHT, ROBOT_WIDTH
+from roboregress.wood import SURFACE_NORMALS, Fastener, MoveScheduled, Surface, Wood
 
 BaseParams = TypeVar("BaseParams", bound="BaseRobotCell.Parameters")
 
@@ -38,20 +42,20 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
                 # No new work is allowed, a wood movement has been scheduled
                 yield None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self._params.pickable_surface.value})"
 
     @property
-    def width(self):
+    def width(self) -> float:
         return self._params.end_pos - self._params.start_pos
 
     @property
-    def center(self):
+    def center(self) -> float:
         return self._params.start_pos + (self.width / 2)
 
     @property
     @abstractmethod
-    def color(self):
+    def color(self) -> Tuple[float, float, float]:
         """The color to use when visualizing this robot cell"""
 
     @abstractmethod

@@ -1,4 +1,4 @@
-from typing import Generator, Optional, List
+from typing import Generator, List, Optional
 
 import open3d as o3d
 import pytest

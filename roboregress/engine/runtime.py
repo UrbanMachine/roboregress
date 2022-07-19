@@ -1,4 +1,6 @@
-from typing import Dict, Set
+from typing import Dict, List, Set
+
+import open3d as o3d
 
 from .base_simulation_object import BaseSimObject
 from .visualizer import Visualizer
@@ -61,7 +63,7 @@ class SimulationRuntime:
                 next_awake = round(self.timestamp + sleep_seconds, 10)
                 self._sleeping_objects[sim_object] = next_awake
 
-    def step_until(self, timestamp: float, visualization=False) -> None:
+    def step_until(self, timestamp: float, visualization: bool = False) -> None:
         """Run the engine until it is at or past the specified timestamp"""
         consecutive_steps_without_change = 0
         """Track if theres ever more than 1 step in a row where the timestamp didn't
@@ -89,5 +91,7 @@ class SimulationRuntime:
                 )
 
             if visualizer:
-                geometries = sum([o.draw() for o in self._sim_objects], [])
+                geometries: List[o3d.geometry.Geometry] = sum(
+                    [o.draw() for o in self._sim_objects], []
+                )
                 visualizer.draw(geometries)
