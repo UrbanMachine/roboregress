@@ -8,11 +8,7 @@ from pydantic import BaseModel
 
 from roboregress.engine import BaseSimObject
 from roboregress.engine.base_simulation_object import LoopGenerator
-from roboregress.robot.vis_constants import (
-    ROBOT_DIST_FROM_CELL_CENTER,
-    ROBOT_HEIGHT,
-    ROBOT_WIDTH,
-)
+from roboregress.robot.vis_constants import ROBOT_DIST_FROM_CELL_CENTER, ROBOT_HEIGHT, ROBOT_WIDTH
 from roboregress.wood import SURFACE_NORMALS, Fastener, MoveScheduled, Surface, Wood
 
 BaseParams = TypeVar("BaseParams", bound="BaseRobotCell.Parameters")
