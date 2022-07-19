@@ -45,7 +45,7 @@ class Visualizer:
 
         self._is_first_render = True
         self._step_clicked = False
-        self._continuous_playing = False
+        self._continuous_playing = True
 
     def _on_layout(self, layout_context: gui.LayoutContext) -> None:
         # The on_layout callback should set the frame (position + size) of every
