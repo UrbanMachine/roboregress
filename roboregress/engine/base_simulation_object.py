@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Generator, Optional
+from typing import Generator, Optional, List
+
+import open3d as o3d
 
 LoopGenerator = Generator[Optional[float], None, None]
 
@@ -27,3 +29,7 @@ class BaseSimObject(ABC):
             - If a number, that means don't continue this function until the timestamp has
               incremented that exact amount.
         """
+
+    @abstractmethod
+    def draw(self) -> List[o3d.geometry.Geometry]:
+        pass
