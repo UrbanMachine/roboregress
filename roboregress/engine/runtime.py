@@ -57,7 +57,7 @@ class SimulationRuntime:
                     self._sleeping_objects.pop(sim_object)
 
             sleep_seconds = sim_object.step()
-            if sleep_seconds is not None:
+            if sleep_seconds is not None and sleep_seconds != 0:
                 assert isinstance(sleep_seconds, float)
                 # Round at 10 decimal places to help prevent floating point drift
                 next_awake = round(self.timestamp + sleep_seconds, 10)

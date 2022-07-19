@@ -6,13 +6,11 @@ wood:
     screw: 1
 
 common_rake_params: &common_rake_params
-  pickable_surface: top
   rake_cycle_seconds: 5
   pick_probabilities:
     offset_nail: 0.9
 
 common_big_bird_params: &common_big_bird_params
-  pickable_surface: top
   big_bird_pick_seconds: 4
   pick_probabilities:
     offset_nail: 0.8
@@ -30,6 +28,9 @@ big_birds:
     <<: *common_big_bird_params
   - start_pos: 2.2
     end_pos: 3.2
+    <<: *common_big_bird_params
+  - start_pos: 3.3
+    end_pos: 4.3
     <<: *common_big_bird_params
 
 conveyor:
