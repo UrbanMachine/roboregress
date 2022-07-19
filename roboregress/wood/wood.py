@@ -4,10 +4,14 @@ from typing import Dict, Generator, List, Optional
 
 import numpy as np
 import numpy.typing as npt
+import open3d as o3d
 from pydantic import BaseModel
 
-from roboregress.robot.fasteners import Fastener
-from roboregress.robot.surfaces import Surface
+from ..engine import BaseSimObject
+from ..engine.base_simulation_object import LoopGenerator
+from ..robot.vis_constants import WOOD_DIST_FROM_CELL_CENTER
+from .fasteners import FASTENER_COLORS, Fastener
+from .surfaces import SURFACE_NORMALS, Surface
 
 
 class MoveScheduled(Exception):
@@ -28,12 +32,14 @@ _FASTENER_BUFFER_LEN = 10
 This number will keep fasteners populated in the region from -buffer_len -> 0.0"""
 
 
-class Wood:
+class Wood(BaseSimObject):
     class Parameters(BaseModel):
         fastener_densities: Dict[Fastener, float]
         """Number of fasteners per meter, adjuster for each fastener type"""
 
     def __init__(self, parameters: Parameters) -> None:
+        super().__init__()
+
         assert len(parameters.fastener_densities) == len(
             Fastener
         ), "All fastener types must be specified!"
@@ -219,3 +225,35 @@ class Wood:
                 board = new_fasteners if board is None else np.concatenate((board, new_fasteners))
 
         return board
+
+    # Sim object methods
+    def _loop(self) -> LoopGenerator:
+        """Wood doesn't do anything in the sim, it only handles visualizations"""
+        while True:
+            yield None
+
+    def draw(self) -> List[o3d.geometry.Geometry]:
+        # Create a point cloud with colored points for each surface
+        if self._fasteners is None:
+            return []
+
+        point_cloud = o3d.geometry.PointCloud()
+        for fastener_type in Fastener:
+            # Create the list of points representing the fasteners on this surface
+            fasteners = self._fasteners[self._fasteners[:, _FASTENER_IDX] == fastener_type]
+            points_on_surface = np.zeros((len(fasteners), 3))
+            points_on_surface[:, 0] = fasteners[:, _POSITION_IDX].copy()
+
+            # Translate it so the line of points is 'closer' to the appropriate surface
+            for i in range(len(points_on_surface)):
+                surface = fasteners[i, _SURFACE_IDX]
+                translate = np.array(SURFACE_NORMALS[surface]) * WOOD_DIST_FROM_CELL_CENTER
+                points_on_surface[i] += translate
+
+            # Create the point cloud and paint it appropriately
+            surface_cloud = o3d.geometry.PointCloud()
+            surface_cloud.points = o3d.utility.Vector3dVector(points_on_surface)
+            surface_cloud.paint_uniform_color(FASTENER_COLORS[fastener_type])
+            point_cloud += surface_cloud
+
+        return [point_cloud]

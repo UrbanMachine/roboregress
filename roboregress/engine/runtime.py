@@ -1,6 +1,9 @@
-from typing import Dict, Set
+from typing import Dict, List, Set
 
-from roboregress.engine import BaseSimObject
+import open3d as o3d
+
+from .base_simulation_object import BaseSimObject
+from .visualizer import Visualizer
 
 
 class NoObjectsToStep(Exception):
@@ -15,6 +18,7 @@ class SimulationRuntime:
     """An object that can run the simulation engine"""
 
     def __init__(self) -> None:
+        self._visualization = False
         self._timestamp: float = 0
         self._sim_objects: Set[BaseSimObject] = set()
         self._sleeping_objects: Dict[BaseSimObject, float] = {}
@@ -59,13 +63,14 @@ class SimulationRuntime:
                 next_awake = round(self.timestamp + sleep_seconds, 10)
                 self._sleeping_objects[sim_object] = next_awake
 
-    def step_until(self, timestamp: float) -> None:
+    def step_until(self, timestamp: float, visualization: bool = False) -> None:
         """Run the engine until it is at or past the specified timestamp"""
         consecutive_steps_without_change = 0
         """Track if theres ever more than 1 step in a row where the timestamp didn't
         increment. This can happen if the objects aren't yielding sleeps, which means
         the user of this runtime isn't actually doing anything useful with it...
         """
+        visualizer = Visualizer() if visualization else None
 
         while self._timestamp < timestamp:
             # TODO: Add a check to make sure timestamp changes between consecutive runs
@@ -84,3 +89,10 @@ class SimulationRuntime:
                     f"the simulation objects in the engine aren't requesting sleeps! "
                     f"Is there a logic error somewhere?"
                 )
+
+            if visualizer:
+                geometries: List[o3d.geometry.Geometry] = sum(
+                    [o.draw() for o in self._sim_objects], []
+                )
+                geometries.append(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3))
+                visualizer.draw(geometries)

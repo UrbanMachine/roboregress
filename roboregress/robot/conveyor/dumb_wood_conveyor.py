@@ -3,9 +3,9 @@ from typing import List
 from pydantic import BaseModel
 
 from roboregress.engine.base_simulation_object import LoopGenerator
+from roboregress.wood.wood import Wood
 
 from ..cell import BaseRobotCell
-from ..wood import Wood
 from .base_wood_conveyor import BaseWoodConveyor
 
 

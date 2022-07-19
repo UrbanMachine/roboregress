@@ -11,6 +11,7 @@ python = ">=3.8,<3.11"
 scipy = "^1.8.1"
 open3d = "^0.15.2"
 pydantic = "^1.9.1"
+glfw = "^2.5.3"
 
 [tool.poetry.dev-dependencies]
 darglint = "^1.8.1"
@@ -25,6 +26,7 @@ pytest-cov = "^3.0"
 pep8-naming = "^0.13.1"
 portray = "^1.7"
 cruft = "^2.10"
+types-PyYAML = "^6.0.10"
 
 [tool.poetry.scripts]
 run_sim = "roboregress.scripts.run_sim:main"

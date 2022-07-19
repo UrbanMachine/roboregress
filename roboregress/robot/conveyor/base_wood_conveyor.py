@@ -3,7 +3,7 @@ from typing import List
 
 from roboregress.engine import BaseSimObject
 from roboregress.robot.cell import BaseRobotCell
-from roboregress.robot.wood import Wood
+from roboregress.wood import Wood
 
 
 class BaseWoodConveyor(BaseSimObject, ABC):

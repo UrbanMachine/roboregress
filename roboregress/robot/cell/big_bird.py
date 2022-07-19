@@ -1,10 +1,13 @@
 from typing import List, Tuple
 
-from ..fasteners import Fastener
+from roboregress.wood import Fastener
+
 from .base_robot_cell import BaseRobotCell
 
 
 class BigBird(BaseRobotCell["BigBird.Parameters"]):
+    color = (0, 1, 0)
+
     class Parameters(BaseRobotCell.Parameters):
         big_bird_pick_seconds: float
         """The seconds it takes to pick a fastener, for BigBird"""
