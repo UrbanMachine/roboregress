@@ -38,6 +38,22 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
                 # No new work is allowed, a wood movement has been scheduled
                 yield None
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self._params.pickable_surface.value})"
+
+    @property
+    def width(self):
+        return self._params.end_pos - self._params.start_pos
+
+    @property
+    def center(self):
+        return self._params.start_pos + (self.width / 2)
+
+    @property
+    @abstractmethod
+    def color(self):
+        """The color to use when visualizing this robot cell"""
+
     @abstractmethod
     def _run_pick(self) -> Tuple[List[Fastener], float]:
         """Do the smallest amount of picking that this robot can do in a single unit,

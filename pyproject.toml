@@ -11,6 +11,7 @@ python = ">=3.8,<3.11"
 scipy = "^1.8.1"
 open3d = "^0.15.2"
 pydantic = "^1.9.1"
+glfw = "^2.5.3"
 
 [tool.poetry.dev-dependencies]
 darglint = "^1.8.1"

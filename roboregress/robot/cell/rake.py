@@ -6,6 +6,8 @@ from .base_robot_cell import BaseRobotCell
 
 
 class Rake(BaseRobotCell["Rake.Parameters"]):
+    color = (1, 0, 0)
+
     class Parameters(BaseRobotCell.Parameters):
         rake_cycle_seconds: float
         """The seconds it takes to run the rake once"""

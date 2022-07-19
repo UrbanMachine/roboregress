@@ -499,6 +499,17 @@ python-versions = ">=3.7"
 gitdb = ">=4.0.1,<5"
 
 [[package]]
+name = "glfw"
+version = "2.5.3"
+description = "A ctypes-based wrapper for GLFW3."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+preview = ["glfw-preview"]
+
+[[package]]
 name = "hug"
 version = "2.6.1"
 description = "A Python framework that makes developing APIs as simple as possible, but no simpler."
@@ -2083,7 +2094,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "07c3e78ee812c61f65455248df2736ba5535dfeb7ea5a44a1ebc1e2f10c5fc32"
+content-hash = "589aae7df3e438730bf08210f1b0d1688fd85351c1bd8d065accf2ddc9abae39"
 
 [metadata.files]
 addict = [
@@ -2420,6 +2431,17 @@ gitdb = [
 gitpython = [
     {file = "GitPython-3.1.27-py3-none-any.whl", hash = "sha256:5b68b000463593e05ff2b261acff0ff0972df8ab1b70d3cdbd41b546c8b8fc3d"},
     {file = "GitPython-3.1.27.tar.gz", hash = "sha256:1c885ce809e8ba2d88a29befeb385fcea06338d3640712b59ca623c220bb5704"},
+]
+glfw = [
+    {file = "glfw-2.5.3-py2.py27.py3.py30.py31.py32.py33.py34.py35.py36.py37.py38-none-macosx_10_6_intel.whl", hash = "sha256:797528a7e433c1684cad2807838824e73c0c1fd8e12b01ee0b22ad203f46bf87"},
+    {file = "glfw-2.5.3-py2.py27.py3.py30.py31.py32.py33.py34.py35.py36.py37.py38-none-macosx_11_0_arm64.whl", hash = "sha256:1763af8d00e1b1517fccceb768e5470ce754a993bd8020878dca444f9523726b"},
+    {file = "glfw-2.5.3-py2.py27.py3.py30.py31.py32.py33.py34.py35.py36.py37.py38-none-manylinux2010_i686.whl", hash = "sha256:847cbe034f5e2b2f3bc02224e630972bf12ec7f8a1303d63bd6f3f722699be8f"},
+    {file = "glfw-2.5.3-py2.py27.py3.py30.py31.py32.py33.py34.py35.py36.py37.py38-none-manylinux2010_x86_64.whl", hash = "sha256:5f0b185ec29b2e68df87b0ebe37841e50af72be78636c72f9c0298ef2b229676"},
+    {file = "glfw-2.5.3-py2.py27.py3.py30.py31.py32.py33.py34.py35.py36.py37.py38-none-manylinux2014_aarch64.whl", hash = "sha256:1158fe9ebec38f5b0ae146d0c781491bb8ef41d1f59e626e707e0708f1865050"},
+    {file = "glfw-2.5.3-py2.py27.py3.py30.py31.py32.py33.py34.py35.py36.py37.py38-none-manylinux2014_x86_64.whl", hash = "sha256:0ad3af6bc0d99a4bfee0de5176d8aee887b04b8e18af3fc90272b96e69464ef7"},
+    {file = "glfw-2.5.3-py2.py27.py3.py30.py31.py32.py33.py34.py35.py36.py37.py38-none-win32.whl", hash = "sha256:25945014ef3fba24ca11249f41018350857d459297ada5820e3553ed838af608"},
+    {file = "glfw-2.5.3-py2.py27.py3.py30.py31.py32.py33.py34.py35.py36.py37.py38-none-win_amd64.whl", hash = "sha256:fe9500b9e31847987a77e686569ad1470435688eaa5ebb87ea80cff2ff3300f3"},
+    {file = "glfw-2.5.3.tar.gz", hash = "sha256:02cf5e7523e867f5253d2df065cb4590250ce744ca2f8bfdcbad4a1727f1e0b5"},
 ]
 hug = [
     {file = "hug-2.6.1-py2.py3-none-any.whl", hash = "sha256:31c8fc284f81377278629a4b94cbb619ae9ce829cdc2da9564ccc66a121046b4"},

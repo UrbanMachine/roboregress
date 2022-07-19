@@ -1,4 +1,5 @@
 from typing import List
+from argparse import ArgumentParser
 
 from roboregress.engine import SimulationRuntime
 from roboregress.robot.cell import BaseRobotCell, BigBird, Rake
@@ -7,6 +8,10 @@ from roboregress.wood import Fastener, Surface, Wood
 
 
 def main() -> None:
+    parser = ArgumentParser()
+    parser.add_argument("-v", "--visualize", action="store_true", default=False)
+    args = parser.parse_args()
+
     runtime = SimulationRuntime()
 
     wood = Wood(
