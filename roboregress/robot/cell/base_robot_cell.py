@@ -47,8 +47,11 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
                     if pick_time > 0:
                         with self._stats.track_work_time():
                             yield pick_time
-                    else:
-                        yield None
+
+                # Since no work was done, yield (outside the work lock) to give
+                # the conveyor the chance to move
+                if pick_time == 0:
+                    yield None
             except MoveScheduled:
                 # No new work is allowed, a wood movement has been scheduled
                 yield None

@@ -27,8 +27,6 @@ class DumbWoodConveyor(BaseWoodConveyor):
 
     def _loop(self) -> LoopGenerator:
         while True:
-            # Allow cells to acquire work locks
-            yield None
 
             # Schedule work
             self.wood.schedule_move()
