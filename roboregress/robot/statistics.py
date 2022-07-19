@@ -1,16 +1,20 @@
 import contextlib
-from typing import Generator, Optional, Set
+from typing import Generator, Optional, Set, Tuple
 
 from roboregress.engine import SimulationRuntime
+from roboregress.wood import Surface
+
+from .cell import BaseRobotCell
 
 
 class RobotStats:
     """A stat tracker for a single robot cell side"""
 
-    def __init__(self, name: str, runtime: SimulationRuntime):
-        self.name = name
+    def __init__(self, robot_params: BaseRobotCell.Parameters, runtime: SimulationRuntime):
+        self.robot_params = robot_params
         self.total_time_working: float = 0
         self.total_time_slacking: float = 0
+        self.currently_working = False
 
         self._runtime = runtime
         self._last_work_start: Optional[float] = None
@@ -25,8 +29,10 @@ class RobotStats:
         """A context manager for tracking utilization of a robot"""
 
         self.start_working()
+        self.currently_working = True
         yield
         self.stop_working()
+        self.currently_working = False
 
     def start_working(self) -> None:
         time = self._runtime.timestamp

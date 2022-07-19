@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from roboregress.engine import SimulationRuntime
 from roboregress.robot.cell import BaseRobotCell, BigBird, Rake
 from roboregress.robot.conveyor import DumbWoodConveyor
+from roboregress.robot.statistics import StatsTracker
 from roboregress.wood import Surface, Wood
 
 
@@ -24,15 +25,18 @@ def runtime_from_file(file: Path) -> SimulationRuntime:
     with file.open() as f:
         config = SimConfig.parse_obj(yaml.safe_load(f))
 
+    runtime = SimulationRuntime()
+    stats = StatsTracker(runtime=runtime)
+
     wood = Wood(parameters=config.wood)
     cells: List[BaseRobotCell] = [
         *(
-            Rake(parameters=r.copy(update={"pickable_surface": surface}), wood=wood)
+            Rake(r.copy(update={"pickable_surface": surface}), wood, stats)
             for surface in Surface
             for r in config.rakes
         ),
         *(
-            BigBird(parameters=b.copy(update={"pickable_surface": surface}), wood=wood)
+            BigBird(b.copy(update={"pickable_surface": surface}), wood, stats)
             for b in config.big_birds
             for surface in Surface
         ),
@@ -40,6 +44,5 @@ def runtime_from_file(file: Path) -> SimulationRuntime:
 
     conveyor = DumbWoodConveyor(params=config.conveyor, wood=wood, cells=cells)
 
-    runtime = SimulationRuntime()
     runtime.register(conveyor, wood, *cells)
     return runtime
