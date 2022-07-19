@@ -1,4 +1,4 @@
-from typing import Dict, List, Set
+from typing import Dict, List
 
 import open3d as o3d
 
@@ -20,7 +20,7 @@ class SimulationRuntime:
     def __init__(self) -> None:
         self._visualization = False
         self._timestamp: float = 0
-        self._sim_objects: Set[BaseSimObject] = set()
+        self._sim_objects: List[BaseSimObject] = []
         self._sleeping_objects: Dict[BaseSimObject, float] = {}
         """Holds a list of objects currently waiting to be reactivated once a certain
         timestamp is reached."""
@@ -32,7 +32,9 @@ class SimulationRuntime:
 
     def register(self, *sim_objects: BaseSimObject) -> None:
         """Register a new sim object with the runtime"""
-        self._sim_objects.update(sim_objects)
+        for sim_obj in sim_objects:
+            assert sim_obj not in self._sim_objects
+            self._sim_objects.append(sim_obj)
 
     def step(self) -> None:
         """Step the simulation
@@ -94,5 +96,7 @@ class SimulationRuntime:
                 geometries: List[o3d.geometry.Geometry] = sum(
                     [o.draw() for o in self._sim_objects], []
                 )
-                geometries.append(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3))
+                geometries.append(
+                    o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3)
+                )
                 visualizer.draw(geometries, self.timestamp)

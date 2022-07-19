@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from roboregress.robot.configuration import runtime_from_file
+from roboregress.robot.reporting import render_stats
 
 
 def main() -> None:
@@ -17,9 +18,11 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    runtime = runtime_from_file(args.config)
+    runtime, stats = runtime_from_file(args.config)
 
     runtime.step_until(timestamp=args.time, visualization=args.visualize)
+
+    render_stats(stats)
     print("Finished Simulation!")
 
 

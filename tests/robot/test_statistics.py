@@ -5,11 +5,12 @@ from roboregress.robot.statistics import RobotStats
 
 def test_robot_stats():
     runtime = Mock()
-    robo_stats = RobotStats("bingus", runtime=runtime)
+    runtime.timestamp = 0
+
+    robo_stats = RobotStats(name="bingus", runtime=runtime, robot_params=Mock())
     assert robo_stats.total_time_slacking == 0
     assert robo_stats.total_time_working == 0
 
-    runtime.timestamp = 0
     assert not robo_stats.currently_working
     with robo_stats.track_work_time():
         assert robo_stats.currently_working

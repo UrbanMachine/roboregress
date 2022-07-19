@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import yaml
 from pydantic import BaseModel
@@ -21,14 +21,15 @@ class SimConfig(BaseModel):
     conveyor: Union[DumbWoodConveyor.Parameters]
 
 
-def runtime_from_file(file: Path) -> SimulationRuntime:
+def runtime_from_file(file: Path) -> Tuple[SimulationRuntime, StatsTracker]:
     with file.open() as f:
         config = SimConfig.parse_obj(yaml.safe_load(f))
 
     runtime = SimulationRuntime()
-    stats = StatsTracker(runtime=runtime)
 
     wood = Wood(parameters=config.wood)
+    stats = StatsTracker(runtime=runtime, wood=wood)
+
     cells: List[BaseRobotCell] = [
         *(
             Rake(r.copy(update={"pickable_surface": surface}), wood, stats)
@@ -44,5 +45,5 @@ def runtime_from_file(file: Path) -> SimulationRuntime:
 
     conveyor = DumbWoodConveyor(params=config.conveyor, wood=wood, cells=cells)
 
-    runtime.register(conveyor, wood, *cells)
-    return runtime
+    runtime.register(*cells, wood, conveyor)
+    return runtime, stats
