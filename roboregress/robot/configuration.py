@@ -20,7 +20,7 @@ class SimConfig(BaseModel):
     conveyor: Union[DumbWoodConveyor.Parameters]
 
 
-def runtime_from_file(file: Path):
+def runtime_from_file(file: Path) -> SimulationRuntime:
     with file.open() as f:
         config = SimConfig.parse_obj(yaml.safe_load(f))
 
