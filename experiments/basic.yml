@@ -28,7 +28,7 @@ common_big_bird_params: &common_big_bird_params
 
 common_screw_manipulator_params: &common_screw_manipulator_params
   screw_pick_seconds: 25
-  working_width: 50.5
+  working_width: .505
   pick_probabilities:
     screw: 0.6
 
