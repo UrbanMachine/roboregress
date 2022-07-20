@@ -1,10 +1,12 @@
 import contextlib
-from typing import Generator, Optional, Set, Tuple
+from typing import Generator, List, Optional, Set, Tuple
 
 from roboregress.engine import SimulationRuntime
 from roboregress.wood import Surface, Wood
 
 from .cell import BaseRobotCell
+
+_FEET_PER_METER = 3.280839895
 
 
 class RobotStats:
@@ -25,6 +27,7 @@ class RobotStats:
         self.name = name
         self.total_time_working: float = 0
         self.total_time_slacking: float = 0
+        self.n_picked_fasteners: int = 0
         self.currently_working = False
 
         self._runtime = runtime
@@ -75,7 +78,56 @@ class RobotStats:
 class StatsTracker:
     def __init__(self, runtime: SimulationRuntime, wood: Wood) -> None:
         self.robot_stats: Set[RobotStats] = set()
+        self._wood = wood
         self._runtime = runtime
+
+    @property
+    def robots_by_cell(self) -> List[Tuple[int, RobotStats]]:
+        """Iterate over the robots with their given 'cell id'"""
+        cell_positions = self.cell_positions
+        robots_by_cell: List[Tuple[int, RobotStats]] = []
+
+        for robot in self.robot_stats:
+            cell_id = cell_positions.index(robot.robot_params.end_pos)
+            robots_by_cell.append((cell_id, robot))
+
+        robots_by_cell.sort(key=lambda k: k[0])
+        return robots_by_cell
+
+    @property
+    def cell_positions(self) -> List[float]:
+        robot_centers = list(dict.fromkeys(r.robot_params.end_pos for r in self.robot_stats))
+        robot_centers.sort()
+        return robot_centers
+
+    @property
+    def missed_fasteners(self) -> int:
+        """Return the number of fasteners after the final robot"""
+        return self._wood.missed_fasteners(self.cell_positions[-1])
+
+    @property
+    def total_time(self) -> float:
+        return self._runtime.timestamp
+
+    @property
+    def total_picked_fasteners(self) -> int:
+        return self._wood.total_picked_fasteners
+
+    @property
+    def total_meters_processed(self) -> float:
+        return self._wood.processed_board
+
+    @property
+    def total_feet_processed(self) -> float:
+        return self._wood.processed_board * _FEET_PER_METER
+
+    @property
+    def throughput_meters(self) -> float:
+        return self.total_meters_processed / self.total_time
+
+    @property
+    def throughput_feet(self) -> float:
+        return self.throughput_meters * _FEET_PER_METER
 
     def create_robot_stats_tracker(self, robot: BaseRobotCell) -> RobotStats:
         def _get_key(stats: RobotStats) -> Tuple[float, float, Surface]:
