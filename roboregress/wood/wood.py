@@ -59,6 +59,7 @@ class Wood(BaseSimObject):
         position, the second index is the surface, and the third index is the type of
         fastener."""
 
+        self._total_picked_fasteners: int = 0
         self._total_translated = 0.0
         """The amount of translation the board has gone through"""
 
@@ -66,6 +67,17 @@ class Wood(BaseSimObject):
     def processed_board(self) -> float:
         """How much board has entered the robot"""
         return self._total_translated
+
+    @property
+    def total_picked_fasteners(self) -> int:
+        """How much board has entered the robot"""
+        return self._total_picked_fasteners
+
+    def missed_fasteners(self, after_pos: float = 0) -> int:
+        """Count how many fasteners exist past the given position mark"""
+        if self._fasteners is None:
+            return 0
+        return np.count_nonzero(self._fasteners[:, _POSITION_IDX] > after_pos)
 
     @property
     def board_length(self) -> float:
@@ -151,6 +163,8 @@ class Wood(BaseSimObject):
 
             # Track the pick
             picks.append(fastener_type)
+
+        self._total_picked_fasteners += len(picks)
         return picks, attempted_pick
 
     def schedule_move(self) -> None:
