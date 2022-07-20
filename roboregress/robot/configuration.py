@@ -1,45 +1,72 @@
 from pathlib import Path
-from typing import List, Union
+from typing import List, Tuple, Union
 
 import yaml
 from pydantic import BaseModel
 
 from roboregress.engine import SimulationRuntime
-from roboregress.robot.cell import BaseRobotCell, BigBird, Rake
-from roboregress.robot.conveyor import DumbWoodConveyor
+from roboregress.robot.cell import BigBird, Rake
+from roboregress.robot.cell.screw_manipulator import ScrewManipulator
+from roboregress.robot.conveyor import DumbWoodConveyor, GreedyWoodConveyor
+from roboregress.robot.statistics import StatsTracker
 from roboregress.wood import Surface, Wood
 
 
 class SimConfig(BaseModel):
     wood: Wood.Parameters
 
-    rakes: List[Rake.Parameters]
+    conveyor: Union[DumbWoodConveyor.Parameters, GreedyWoodConveyor.Parameters]
 
-    big_birds: List[BigBird.Parameters]
+    default_cell_distance: float
+    """Distance between robot cells"""
 
-    conveyor: Union[DumbWoodConveyor.Parameters]
+    default_cell_width: float
+    """Workspace within a cell"""
+
+    pickers: List[Union[Rake.Parameters, BigBird.Parameters, ScrewManipulator.Parameters]]
 
 
-def runtime_from_file(file: Path) -> SimulationRuntime:
+CONVEYOR_MAPPING = {
+    DumbWoodConveyor.Parameters: DumbWoodConveyor,
+    GreedyWoodConveyor.Parameters: GreedyWoodConveyor,
+}
+ROBOT_MAPPING = {
+    Rake.Parameters: Rake,
+    BigBird.Parameters: BigBird,
+    ScrewManipulator.Parameters: ScrewManipulator,
+}
+
+
+def runtime_from_file(file: Path) -> Tuple[SimulationRuntime, StatsTracker]:
     with file.open() as f:
         config = SimConfig.parse_obj(yaml.safe_load(f))
 
-    wood = Wood(parameters=config.wood)
-    cells: List[BaseRobotCell] = [
-        *(
-            Rake(parameters=r.copy(update={"pickable_surface": surface}), wood=wood)
-            for surface in Surface
-            for r in config.rakes
-        ),
-        *(
-            BigBird(parameters=b.copy(update={"pickable_surface": surface}), wood=wood)
-            for b in config.big_birds
-            for surface in Surface
-        ),
-    ]
-
-    conveyor = DumbWoodConveyor(params=config.conveyor, wood=wood, cells=cells)
-
     runtime = SimulationRuntime()
-    runtime.register(conveyor, wood, *cells)
-    return runtime
+
+    wood = Wood(parameters=config.wood)
+    stats = StatsTracker(runtime=runtime, wood=wood)
+
+    pos = 0.0
+    cells = []
+    for params in config.pickers:
+        if params.start_pos == -1:
+            # Don't autopopulate position, this one is manually configured
+            params.start_pos = pos
+
+        if params.working_width == -1:
+            params.working_width = config.default_cell_width
+
+        for surface in Surface:
+            robot_type = ROBOT_MAPPING[type(params)]
+            params = params.copy(update={"pickable_surface": surface})
+            robot = robot_type(params, wood, stats)
+            cells.append(robot)
+
+        pos += config.default_cell_distance + params.working_width
+
+    conveyor = CONVEYOR_MAPPING[type(config.conveyor)](
+        params=config.conveyor, wood=wood, cells=cells
+    )
+
+    runtime.register(*cells, wood, conveyor)
+    return runtime, stats

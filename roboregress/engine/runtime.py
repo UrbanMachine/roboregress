@@ -1,9 +1,15 @@
-from typing import Dict, List, Set
+import random
+from typing import Dict, List
 
+import numpy as np
 import open3d as o3d
 
 from .base_simulation_object import BaseSimObject
 from .visualizer import Visualizer
+
+# Make the system deterministic by setting the seed for numpy and python
+np.random.seed(1337)
+random.seed(1337)
 
 
 class NoObjectsToStep(Exception):
@@ -20,7 +26,7 @@ class SimulationRuntime:
     def __init__(self) -> None:
         self._visualization = False
         self._timestamp: float = 0
-        self._sim_objects: Set[BaseSimObject] = set()
+        self._sim_objects: List[BaseSimObject] = []
         self._sleeping_objects: Dict[BaseSimObject, float] = {}
         """Holds a list of objects currently waiting to be reactivated once a certain
         timestamp is reached."""
@@ -32,7 +38,9 @@ class SimulationRuntime:
 
     def register(self, *sim_objects: BaseSimObject) -> None:
         """Register a new sim object with the runtime"""
-        self._sim_objects.update(sim_objects)
+        for sim_obj in sim_objects:
+            assert sim_obj not in self._sim_objects
+            self._sim_objects.append(sim_obj)
 
     def step(self) -> None:
         """Step the simulation
@@ -57,7 +65,7 @@ class SimulationRuntime:
                     self._sleeping_objects.pop(sim_object)
 
             sleep_seconds = sim_object.step()
-            if sleep_seconds is not None:
+            if sleep_seconds is not None and sleep_seconds != 0:
                 assert isinstance(sleep_seconds, float)
                 # Round at 10 decimal places to help prevent floating point drift
                 next_awake = round(self.timestamp + sleep_seconds, 10)

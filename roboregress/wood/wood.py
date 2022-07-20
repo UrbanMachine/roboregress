@@ -1,6 +1,6 @@
 import contextlib
 import random
-from typing import Dict, Generator, List, Optional
+from typing import Dict, Generator, List, Optional, Tuple
 
 import numpy as np
 import numpy.typing as npt
@@ -59,6 +59,7 @@ class Wood(BaseSimObject):
         position, the second index is the surface, and the third index is the type of
         fastener."""
 
+        self._total_picked_fasteners: int = 0
         self._total_translated = 0.0
         """The amount of translation the board has gone through"""
 
@@ -68,9 +69,26 @@ class Wood(BaseSimObject):
         return self._total_translated
 
     @property
+    def total_picked_fasteners(self) -> int:
+        """How much board has entered the robot"""
+        return self._total_picked_fasteners
+
+    def missed_fasteners(self, after_pos: float = 0) -> int:
+        """Count how many fasteners exist past the given position mark"""
+        if self._fasteners is None:
+            return 0
+        return np.count_nonzero(self._fasteners[:, _POSITION_IDX] > after_pos)
+
+    @property
     def board_length(self) -> float:
         """The length of the board including the buffer that hasn't been processed"""
         return self._total_translated + _FASTENER_BUFFER_LEN
+
+    @property
+    def fasteners(self) -> Optional[npt.NDArray[np.float64]]:
+        if self._fasteners is None:
+            return self._fasteners
+        return self._fasteners.copy()
 
     @contextlib.contextmanager
     def work_lock(self) -> Generator[None, None, None]:
@@ -89,9 +107,8 @@ class Wood(BaseSimObject):
         end_pos: float,
         pick_probabilities: Dict[Fastener, float],
         n_fasteners_to_sample: Optional[int] = 1,
-    ) -> List[Fastener]:
+    ) -> Tuple[List[Fastener], bool]:
         """
-
         :param from_surface: What surface to attempt picking from
         :param start_pos: The 'start' of the picking range
         :param end_pos: The 'end' of the picking range
@@ -101,7 +118,9 @@ class Wood(BaseSimObject):
             This is useful for things like a rake that can attempt multiple picks at
             once. If None, all fasteners in the range will be 'attempted' at once.
         :raises ValueError: If invalid parameters
-        :return: The types of successfully picked fasteners
+        :return: A tuple of:
+            - The types of successfully picked fasteners
+            - Whether or not a pick was even attempted
         """
         if self._ongoing_work == 0:
             raise ValueError("Hey, you must acquire the work lock in order to operate!")
@@ -110,7 +129,7 @@ class Wood(BaseSimObject):
             raise ValueError(f"Invalid pick range! {start_pos=} {end_pos=}")
 
         if self._fasteners is None:
-            return []
+            return [], False
 
         fasteners_in_range_mask = np.logical_and(
             self._fasteners[:, _POSITION_IDX] > start_pos,
@@ -131,10 +150,15 @@ class Wood(BaseSimObject):
             assert len(choices) == n_fasteners_to_sample
             fasteners_to_attempt = pickable_fasteners[choices]
 
+        attempted_pick = False
         picks: List[Fastener] = []
         for fastener in fasteners_to_attempt:
             fastener_type = fastener[_FASTENER_IDX]
             pick_probability = pick_probabilities.get(fastener_type, 0.0)
+
+            if pick_probability != 0:
+                attempted_pick = True
+
             if random.random() > pick_probability:
                 # The pick failed
                 continue
@@ -145,7 +169,9 @@ class Wood(BaseSimObject):
 
             # Track the pick
             picks.append(fastener_type)
-        return picks
+
+        self._total_picked_fasteners += len(picks)
+        return picks, attempted_pick
 
     def schedule_move(self) -> None:
         self._no_new_work = True

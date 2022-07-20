@@ -1,3 +1,6 @@
+default_cell_distance: 0.254
+default_cell_width: 0.5
+
 wood:
   fastener_densities:
     staple: 3
@@ -5,33 +8,35 @@ wood:
     offset_nail: 10
     screw: 1
 
+conveyor:
+  move_speed: 0.1
+#  move_increment: 0.25
+
 common_rake_params: &common_rake_params
-  pickable_surface: top
-  rake_cycle_seconds: 5
+  rake_cycle_seconds: 6.5
+  working_width: 0.1
   pick_probabilities:
     offset_nail: 0.9
 
 common_big_bird_params: &common_big_bird_params
-  pickable_surface: top
   big_bird_pick_seconds: 4
+  working_width: 0.345
   pick_probabilities:
-    offset_nail: 0.8
+    offset_nail: 0.9
+    staple: 0.8
     flush_nail: 0.7
-    staple: 0.9
 
-rakes:
-  - start_pos: 0
-    end_pos: 1
-    <<: *common_rake_params
+common_screw_manipulator_params: &common_screw_manipulator_params
+  screw_pick_seconds: 25
+  working_width: 50.5
+  pick_probabilities:
+    screw: 0.6
 
-big_birds:
-  - start_pos: 1.1
-    end_pos: 2.1
-    <<: *common_big_bird_params
-  - start_pos: 2.2
-    end_pos: 3.2
-    <<: *common_big_bird_params
+pickers:
+  - <<: *common_rake_params
+  - <<: *common_big_bird_params
+  - <<: *common_big_bird_params
+  - <<: *common_big_bird_params
+  - <<: *common_big_bird_params
+  - <<: *common_screw_manipulator_params
 
-conveyor:
-  move_increment: 0.5
-  move_speed: 0.25
