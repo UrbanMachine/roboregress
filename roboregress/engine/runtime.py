@@ -1,9 +1,15 @@
+import random
 from typing import Dict, List
 
+import numpy as np
 import open3d as o3d
 
 from .base_simulation_object import BaseSimObject
 from .visualizer import Visualizer
+
+# Make the system deterministic by setting the seed for numpy and python
+np.random.seed(1337)
+random.seed(1337)
 
 
 class NoObjectsToStep(Exception):
