@@ -36,7 +36,7 @@ class GreedyWoodConveyor(BaseWoodConveyor):
 
             move_increment = self._calculate_furthest_cell()
             self.wood.move(move_increment)
-            yield self._params.move_speed * move_increment
+            yield move_increment / self._params.move_speed
 
     def _calculate_furthest_cell(self) -> float:
         """Calculate the greediest possible furthest move the robot can make"""
