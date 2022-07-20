@@ -17,6 +17,11 @@ common_big_bird_params: &common_big_bird_params
     flush_nail: 0.7
     staple: 0.9
 
+common_screw_manipulator_params: &common_screw_manipulator_params
+  screw_pick_seconds: 7
+  pick_probabilities:
+    screw: 0.9
+
 rakes:
   - start_pos: 0
     end_pos: 1
@@ -33,6 +38,10 @@ big_birds:
     end_pos: 4.3
     <<: *common_big_bird_params
 
+screw_manipulators:
+  - start_pos: 4.4
+    end_pos: 5.4
+    <<: *common_screw_manipulator_params
+
 conveyor:
-  move_increment: 0.5
   move_speed: 0.25
