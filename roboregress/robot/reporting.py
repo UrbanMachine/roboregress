@@ -1,6 +1,7 @@
+from pathlib import Path
 from typing import List
 
-from bokeh.io import show
+from bokeh.io import save, show
 from bokeh.layouts import layout
 from bokeh.models import ColumnDataSource
 from bokeh.models.widgets import DataTable, TableColumn
@@ -26,7 +27,7 @@ class HighLevelTable(BaseModel):
     processed_feet: List[float] = Field(default_factory=list)
 
 
-def render_stats(stats: StatsTracker) -> None:
+def render_stats(stats: StatsTracker, save_to: Path) -> None:
     """Generate and open a report in browser"""
 
     # Gather the per-robot statistics
@@ -55,7 +56,9 @@ def render_stats(stats: StatsTracker) -> None:
     robot_table_plot = render_pydantic_table(robot_table)
     overall_table_plot = render_pydantic_table(overall_table)
 
-    show(layout([robot_table_plot, overall_table_plot], sizing_mode="stretch_both"))
+    final = layout([robot_table_plot, overall_table_plot], sizing_mode="stretch_both")
+    show(final)
+    save(final, filename=save_to, title=save_to.name)
 
 
 def render_pydantic_table(model: BaseModel) -> DataTable:
