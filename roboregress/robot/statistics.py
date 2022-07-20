@@ -103,7 +103,9 @@ class StatsTracker:
     @property
     def missed_fasteners(self) -> int:
         """Return the number of fasteners after the final robot"""
-        return self._wood.missed_fasteners(self.cell_positions[-1])
+        cell_positions = self.cell_positions
+        furthest_pos = cell_positions[-1] if len(cell_positions) else 0
+        return self._wood.missed_fasteners(furthest_pos)
 
     @property
     def total_time(self) -> float:
