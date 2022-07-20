@@ -10,6 +10,13 @@ def main() -> None:
     parser.add_argument("-v", "--visualize", action="store_true", default=False)
     parser.add_argument("-c", "--config", type=Path, required=True)
     parser.add_argument(
+        "-s",
+        "--save-to",
+        type=Path,
+        required=False,
+        help="Where to save the report. Defaults to the name of the configuration file",
+    )
+    parser.add_argument(
         "-t",
         "--time",
         type=int,
@@ -22,7 +29,8 @@ def main() -> None:
 
     runtime.step_until(timestamp=args.time, visualization=args.visualize)
 
-    render_stats(stats)
+    save_to = args.save_to if args.save_to else args.config.with_suffix(".html")
+    render_stats(stats, save_to=save_to)
     print("Finished Simulation!")
 
 
