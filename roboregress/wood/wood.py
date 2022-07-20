@@ -84,6 +84,12 @@ class Wood(BaseSimObject):
         """The length of the board including the buffer that hasn't been processed"""
         return self._total_translated + _FASTENER_BUFFER_LEN
 
+    @property
+    def fasteners(self) -> Optional[npt.NDArray[np.float64]]:
+        if self._fasteners is None:
+            return self._fasteners
+        return self._fasteners.copy()
+
     @contextlib.contextmanager
     def work_lock(self) -> Generator[None, None, None]:
         """Lock the workpiece in order to pick"""
