@@ -1,7 +1,7 @@
 from abc import ABC
+from copy import deepcopy
 from typing import List
 
-import numpy as np
 import open3d as o3d
 
 from roboregress.engine import BaseSimObject
@@ -21,10 +21,15 @@ class BaseWoodConveyor(BaseSimObject, ABC):
         self.wood = wood
 
     def draw(self) -> List[o3d.geometry.Geometry]:
-        box: o3d.geometry.TriangleMesh = o3d.geometry.TriangleMesh.create_box(
+        box_1: o3d.geometry.TriangleMesh = o3d.geometry.TriangleMesh.create_box(
             width=0.1, height=0.1, depth=ROBOT_WIDTH * 2
         )
-        box.paint_uniform_color(self.color)
+        box_1.paint_uniform_color(self.color)
+        box_2 = deepcopy(box_1)
 
-        box.translate(np.array((self.wood.processed_board % 5, 0, -ROBOT_WIDTH)))
-        return [box]
+        box_1_pos = (self.wood.processed_board % 5, 0, -ROBOT_WIDTH)
+        box_1.translate(box_1_pos)
+
+        box_2_pos = ((self.wood.processed_board + 2.1) % 5, 0, -ROBOT_WIDTH)
+        box_2.translate(box_2_pos)
+        return [box_1, box_2]
