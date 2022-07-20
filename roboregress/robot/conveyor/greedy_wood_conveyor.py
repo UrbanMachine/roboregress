@@ -1,7 +1,6 @@
 from typing import List, cast
 
 import numpy as np
-import open3d as o3d
 from pydantic import BaseModel
 
 from roboregress.engine.base_simulation_object import LoopGenerator
@@ -70,6 +69,3 @@ class GreedyWoodConveyor(BaseWoodConveyor):
 
         # Move the minimum furthest amount
         return cast(float, np.min(furthest_move_for_fastener))
-
-    def draw(self) -> List[o3d.geometry.Geometry]:
-        return []

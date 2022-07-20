@@ -21,10 +21,11 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
     """An object in charge of doing _some_ work on some location along the wood axis"""
 
     class Parameters(BaseModel):
-        start_pos: float
-        end_pos: float
         pick_probabilities: Dict[Fastener, float]
 
+        # Prefill these with defaults since configuration will override them
+        start_pos: float = -1.0
+        end_pos: float = -1.0
         pickable_surface: Surface = Surface.TOP
         """Defaults to top to simplify configuration"""
 

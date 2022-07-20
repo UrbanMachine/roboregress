@@ -1,6 +1,5 @@
 from typing import List
 
-import open3d as o3d
 from pydantic import BaseModel
 
 from roboregress.engine.base_simulation_object import LoopGenerator
@@ -36,6 +35,3 @@ class DumbWoodConveyor(BaseWoodConveyor):
             # Move the wood!
             self.wood.move(self._params.move_increment)
             yield self._params.move_speed * self._params.move_increment
-
-    def draw(self) -> List[o3d.geometry.Geometry]:
-        return []
