@@ -25,9 +25,14 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
 
         # Prefill these with defaults since configuration will override them
         start_pos: float = -1.0
-        end_pos: float = -1.0
+        working_width: float = -1.0
+
         pickable_surface: Surface = Surface.TOP
         """Defaults to top to simplify configuration"""
+
+        @property
+        def end_pos(self) -> float:
+            return self.start_pos + self.working_width
 
     def __init__(self, parameters: BaseParams, wood: Wood, stats_tracker: "StatsTracker"):
         """

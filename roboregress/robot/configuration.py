@@ -17,10 +17,10 @@ class SimConfig(BaseModel):
 
     conveyor: Union[DumbWoodConveyor.Parameters, GreedyWoodConveyor.Parameters]
 
-    cell_distance: float
+    default_cell_distance: float
     """Distance between robot cells"""
 
-    cell_width: float
+    default_cell_width: float
     """Workspace within a cell"""
 
     pickers: List[Union[Rake.Parameters, BigBird.Parameters, ScrewManipulator.Parameters]]
@@ -49,19 +49,20 @@ def runtime_from_file(file: Path) -> Tuple[SimulationRuntime, StatsTracker]:
     pos = 0.0
     cells = []
     for params in config.pickers:
+        if params.start_pos == -1:
+            # Don't autopopulate position, this one is manually configured
+            params.start_pos = pos
+
+        if params.working_width == -1:
+            params.working_width = config.default_cell_width
+
         for surface in Surface:
             robot_type = ROBOT_MAPPING[type(params)]
-            fixed_params = params.copy(
-                update={
-                    "pickable_surface": surface,
-                    "start_pos": pos,
-                    "end_pos": pos + config.cell_width,
-                }
-            )
-            robot = robot_type(fixed_params, wood, stats)
+            params = params.copy(update={"pickable_surface": surface})
+            robot = robot_type(params, wood, stats)
             cells.append(robot)
 
-        pos += config.cell_distance + config.cell_width
+        pos += config.default_cell_distance + params.working_width
 
     conveyor = CONVEYOR_MAPPING[type(config.conveyor)](
         params=config.conveyor, wood=wood, cells=cells
