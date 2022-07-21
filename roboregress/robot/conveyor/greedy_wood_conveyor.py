@@ -51,6 +51,11 @@ class GreedyWoodConveyor(BaseWoodConveyor):
         # Find the 'furthest cell' of each 'type' of cell
         for fastener_type in Fastener:
             fasteners_of_type = fasteners[fasteners[:, 2] == fastener_type]
+
+            if len(fasteners_of_type) == 0:
+                # If no fasteners of this type are present in the wood, at all
+                continue
+
             highest_fastener = fasteners_of_type[np.argmax(fasteners_of_type[:, 0])][0]
 
             furthest_move_for = -float("inf")
