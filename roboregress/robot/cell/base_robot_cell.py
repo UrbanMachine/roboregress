@@ -50,6 +50,8 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
             try:
                 with self._wood.work_lock():
                     fasteners, pick_time = self._run_pick()
+                    assert pick_time >= 0
+
                     self._stats.n_picked_fasteners += len(fasteners)
                     if pick_time > 0:
                         with self._stats.track_work_time():
