@@ -37,5 +37,5 @@ class DumbWoodConveyor(BaseWoodConveyor):
 
             # Move the wood!
             self.wood.move(self._params.move_increment)
-            with self.stats.track_work_time():
+            with self.stats.time():
                 yield self._params.move_increment / self._params.move_speed

@@ -9,8 +9,8 @@ wood:
     screw: 1
 
 conveyor:
-  move_speed: 0.1
-#  move_increment: 0.25
+  move_speed: 0.5
+#  move_increment: 0.35
 
 common_rake_params: &common_rake_params
   rake_cycle_seconds: 6.5

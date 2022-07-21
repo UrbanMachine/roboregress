@@ -54,7 +54,7 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
 
                     self._stats.n_picked_fasteners += len(fasteners)
                     if pick_time > 0:
-                        with self._stats.track_work_time():
+                        with self._stats.work_timer.time():
                             yield pick_time
 
                 # Since no work was done, yield (outside the work lock) to give
@@ -63,7 +63,8 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
                     yield None
             except MoveScheduled:
                 # No new work is allowed, a wood movement has been scheduled
-                yield None
+                with self._stats.waiting_for_wood_timer.time():
+                    yield None
 
     def __repr__(self) -> str:
         return (
@@ -106,7 +107,7 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
 
         box.translate(position - box.get_center())
 
-        if self._stats.currently_working:
+        if self._stats.work_timer.currently_working:
             color = np.array(self.color)
         else:
             color = np.array(self.color, dtype=np.float64)

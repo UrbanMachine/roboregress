@@ -1,5 +1,6 @@
 import contextlib
 import random
+from collections import Counter
 from typing import Dict, Generator, List, Optional, Tuple
 
 import numpy as np
@@ -73,11 +74,15 @@ class Wood(BaseSimObject):
         """How much board has entered the robot"""
         return self._total_picked_fasteners
 
-    def missed_fasteners(self, after_pos: float = 0) -> int:
-        """Count how many fasteners exist past the given position mark"""
+    def missed_fasteners(self, after_pos: float = 0) -> Dict[Fastener, int]:
+        """Count how many fasteners of each type exist past the given position mark"""
         if self._fasteners is None:
-            return 0
-        return np.count_nonzero(self._fasteners[:, _POSITION_IDX] > after_pos)
+            return {}
+
+        missed_fasteners = self._fasteners[self._fasteners[:, _POSITION_IDX] > after_pos]
+        missed_fastener_types = missed_fasteners[:, _FASTENER_IDX].tolist()
+        missed = dict(Counter(missed_fastener_types))
+        return {f: missed.get(f, 0) for f in Fastener}
 
     @property
     def board_length(self) -> float:

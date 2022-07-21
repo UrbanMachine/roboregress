@@ -1,5 +1,5 @@
 import contextlib
-from typing import Generator, List, Optional, Set, Tuple
+from typing import Dict, Generator, List, Optional, Set, Tuple
 
 from roboregress.engine import SimulationRuntime
 from roboregress.wood import Surface, Wood
@@ -33,7 +33,7 @@ class WorkTimeTracker:
             return self.total_time_working / self.total_time
 
     @contextlib.contextmanager
-    def track_work_time(self) -> Generator[None, None, None]:
+    def time(self) -> Generator[None, None, None]:
         """A context manager for tracking utilization of a robot"""
 
         self.start_working()
@@ -62,14 +62,16 @@ class WorkTimeTracker:
         self.total_time_working += work_time
 
 
-class RobotStats(WorkTimeTracker):
+class RobotStats:
     def __init__(
         self, robot_params: BaseRobotCell.Parameters, name: str, runtime: SimulationRuntime
     ):
-        super().__init__(runtime=runtime)
         self.name = name
         self.robot_params = robot_params
         self.n_picked_fasteners: int = 0
+
+        self.work_timer = WorkTimeTracker(runtime=runtime)
+        self.waiting_for_wood_timer = WorkTimeTracker(runtime=runtime)
 
 
 class WoodStats(WorkTimeTracker):
@@ -124,11 +126,14 @@ class StatsTracker:
         return robot_centers
 
     @property
-    def missed_fasteners(self) -> int:
-        """Return the number of fasteners after the final robot"""
+    def missed_fasteners(self) -> Dict[str, int]:
+        """Return the number of each type of fasteners after the final robot cell"""
         cell_positions = self.cell_positions
         furthest_pos = cell_positions[-1] if len(cell_positions) else 0
-        return self.wood._wood.missed_fasteners(furthest_pos)
+        missed = self.wood._wood.missed_fasteners(furthest_pos)
+
+        # Stringify the enums for easy rendering
+        return {f.value: count for f, count in missed.items()}
 
     @property
     def total_time(self) -> float:
