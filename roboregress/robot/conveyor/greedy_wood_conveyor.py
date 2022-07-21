@@ -65,7 +65,10 @@ class GreedyWoodConveyor(BaseWoodConveyor):
                     furthest_move_for = delta
                     furthest_cell_for = robot.params.end_pos
 
-            furthest_move_for_fastener.append(furthest_move_for)
+            if furthest_move_for >= 0:
+                furthest_move_for_fastener.append(furthest_move_for)
 
         # Move the minimum furthest amount
+        if len(furthest_move_for_fastener) == 0:
+            return 0
         return cast(float, np.min(furthest_move_for_fastener))
