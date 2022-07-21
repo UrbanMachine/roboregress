@@ -9,25 +9,12 @@ from .cell import BaseRobotCell
 _FEET_PER_METER = 3.280839895
 
 
-class RobotStats:
+class WorkTimeTracker:
     """A stat tracker for a single robot cell side"""
 
-    def __init__(
-        self,
-        robot_params: BaseRobotCell.Parameters,
-        name: str,
-        runtime: SimulationRuntime,
-    ):
-        """
-        :param robot_params: The parameters the robot was configured with
-        :param name: The type of robot (Rake, BigBird, etc)
-        :param runtime: The runtime, for timestamp tracking
-        """
-        self.robot_params = robot_params
-        self.name = name
+    def __init__(self, runtime: SimulationRuntime):
         self.total_time_working: float = 0
         self.total_time_slacking: float = 0
-        self.n_picked_fasteners: int = 0
         self.currently_working = False
 
         self._runtime = runtime
@@ -75,10 +62,46 @@ class RobotStats:
         self.total_time_working += work_time
 
 
+class RobotStats(WorkTimeTracker):
+    def __init__(
+        self, robot_params: BaseRobotCell.Parameters, name: str, runtime: SimulationRuntime
+    ):
+        super().__init__(runtime=runtime)
+        self.name = name
+        self.robot_params = robot_params
+        self.n_picked_fasteners: int = 0
+
+
+class WoodStats(WorkTimeTracker):
+    def __init__(self, wood: Wood, runtime: SimulationRuntime):
+        super().__init__(runtime=runtime)
+        self._wood = wood
+
+    @property
+    def total_picked_fasteners(self) -> int:
+        return self._wood.total_picked_fasteners
+
+    @property
+    def total_meters_processed(self) -> float:
+        return self._wood.processed_board
+
+    @property
+    def total_feet_processed(self) -> float:
+        return self._wood.processed_board * _FEET_PER_METER
+
+    @property
+    def throughput_meters(self) -> float:
+        return self.total_meters_processed / self._runtime.timestamp
+
+    @property
+    def throughput_feet(self) -> float:
+        return self.throughput_meters * _FEET_PER_METER
+
+
 class StatsTracker:
     def __init__(self, runtime: SimulationRuntime, wood: Wood) -> None:
         self.robot_stats: Set[RobotStats] = set()
-        self._wood = wood
+        self.wood = WoodStats(wood=wood, runtime=runtime)
         self._runtime = runtime
 
     @property
@@ -105,31 +128,11 @@ class StatsTracker:
         """Return the number of fasteners after the final robot"""
         cell_positions = self.cell_positions
         furthest_pos = cell_positions[-1] if len(cell_positions) else 0
-        return self._wood.missed_fasteners(furthest_pos)
+        return self.wood._wood.missed_fasteners(furthest_pos)
 
     @property
     def total_time(self) -> float:
         return self._runtime.timestamp
-
-    @property
-    def total_picked_fasteners(self) -> int:
-        return self._wood.total_picked_fasteners
-
-    @property
-    def total_meters_processed(self) -> float:
-        return self._wood.processed_board
-
-    @property
-    def total_feet_processed(self) -> float:
-        return self._wood.processed_board * _FEET_PER_METER
-
-    @property
-    def throughput_meters(self) -> float:
-        return self.total_meters_processed / self.total_time
-
-    @property
-    def throughput_feet(self) -> float:
-        return self.throughput_meters * _FEET_PER_METER
 
     def create_robot_stats_tracker(self, robot: BaseRobotCell) -> RobotStats:
         def _get_key(stats: RobotStats) -> Tuple[float, float, Surface]:

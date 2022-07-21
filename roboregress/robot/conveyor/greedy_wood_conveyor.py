@@ -8,6 +8,7 @@ from roboregress.wood import Fastener
 from roboregress.wood.wood import Wood
 
 from ..cell import BaseRobotCell
+from ..statistics import WoodStats
 from .base_wood_conveyor import BaseWoodConveyor
 
 
@@ -19,8 +20,10 @@ class GreedyWoodConveyor(BaseWoodConveyor):
         move_speed: float
         """How fast the wood moves, in meters/second"""
 
-    def __init__(self, params: Parameters, cells: List[BaseRobotCell], wood: Wood):
-        super().__init__(cells=cells, wood=wood)
+    def __init__(
+        self, params: Parameters, cells: List[BaseRobotCell], wood: Wood, wood_stats: WoodStats
+    ):
+        super().__init__(cells=cells, wood=wood, wood_stats=wood_stats)
         self._params = params
         self._wood = wood
 
@@ -36,7 +39,8 @@ class GreedyWoodConveyor(BaseWoodConveyor):
 
             move_increment = self._calculate_furthest_cell()
             self.wood.move(move_increment)
-            yield move_increment / self._params.move_speed
+            with self.stats.track_work_time():
+                yield move_increment / self._params.move_speed
 
     def _calculate_furthest_cell(self) -> float:
         """Calculate the greediest possible furthest move the robot can make"""

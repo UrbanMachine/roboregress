@@ -53,18 +53,19 @@ def render_stats(stats: StatsTracker, save_to: Path, config_file: Path) -> None:
 
     # Gather the overall robot assembly statistics
     assert (
-        sum(r.n_picked_fasteners for r in stats.robot_stats) == stats.total_picked_fasteners
+        sum(r.n_picked_fasteners for r in stats.robot_stats) == stats.wood.total_picked_fasteners
     ), "The pick count numbers should be consistent! There is a bug somewhere."
     overall_table = HighLevelTable()
     overall_table.total_time.append(round(stats.total_time))
-    overall_table.total_fasteners.append(stats.total_picked_fasteners)
-    overall_table.processed_feet.append(round(stats.total_feet_processed))
+    overall_table.total_fasteners.append(stats.wood.total_picked_fasteners)
+    overall_table.processed_feet.append(round(stats.wood.total_feet_processed))
     overall_table.missed_fasteners.append(stats.missed_fasteners)
 
-    daily_throughput_feet = stats.throughput_feet * 60 * 60 * 24
+    daily_throughput_feet = stats.wood.throughput_feet * 60 * 60 * 24
     overall_table.board_feet_per_day_2x12.append(round((daily_throughput_feet * ((2 * 12) / 12))))
     overall_table.throughput_feet_per_day.append(round(daily_throughput_feet))
 
+    # Create the output plots
     output_file(save_to)
     robot_table_plot = render_pydantic_table(robot_table)
     overall_table_plot = render_pydantic_table(overall_table)
