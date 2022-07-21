@@ -69,8 +69,8 @@ def test_moving_wood_when_not_ready():
     (
         (5, {f: 1.0 for f in Fastener}, 5),
         (None, {f: 1.0 for f in Fastener}, 20),
-        (None, {f: 0.0 for f in Fastener}, 0),
-        (1000, {f: 0.0 for f in Fastener}, 0),
+        (None, {}, 0),
+        (1000, {}, 0),
         (1000, {f: 1.0 for f in Fastener}, 20),
         (1000, {}, 0),
     ),
@@ -98,6 +98,36 @@ def test_pick(
     assert attempted_pick is (expected_min_picks > 0)
     assert len(picked_fasteners) >= expected_min_picks
     assert len(fasteners_arr_before) - len(wood._fasteners) == len(picked_fasteners)
+
+
+def test_pick_samples_from_only_pickable_fastener_pytest():
+    """Test that when selecting fasteners from the wood array, only the fasteners with a pick
+    probability > 0 are selected to be chosen"""
+    # Create wood beam where all the fasteners are super common except screws
+    wood = Wood(
+        parameters=Wood.Parameters(
+            fastener_densities={
+                Fastener.STAPLE: 10,
+                Fastener.FLUSH_NAIL: 11,
+                Fastener.OFFSET_NAIL: 12,
+                Fastener.SCREW: 1,
+            }
+        )
+    )
+
+    wood.move(100)
+
+    with wood.work_lock():
+        picks, attempted_pick = wood.pick(
+            from_surface=Surface.TOP,
+            start_pos=0,
+            end_pos=100,
+            pick_probabilities={Fastener.SCREW: 1},
+            n_fasteners_to_sample=1,
+        )
+    assert len(picks) == 1
+    assert picks[0] is Fastener.SCREW
+    assert attempted_pick
 
 
 def test_pick_null_fasteners():

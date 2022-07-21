@@ -138,6 +138,17 @@ class Wood(BaseSimObject):
         fasteners_on_surface_mask = self._fasteners[:, _SURFACE_IDX] == from_surface
         pickable_fasteners_mask = np.logical_and(fasteners_in_range_mask, fasteners_on_surface_mask)
 
+        # Now filter for fastener types that have nonzero chance of being picked
+        pickable_fastener_types = [t for t in pick_probabilities.keys()]
+        for fastener_type in Fastener:
+            if fastener_type not in pickable_fastener_types:
+                # Filter out unpickable fasteners
+                pickable_fasteners_mask = np.logical_and(
+                    pickable_fasteners_mask,
+                    self._fasteners[:, _FASTENER_IDX] != fastener_type,
+                )
+
+        # Finally, apply the mask to select only pickable fasteners
         pickable_fasteners = self._fasteners[pickable_fasteners_mask]
 
         # Randomly select up to 'n_fasteners_to_sample' from the group
@@ -150,14 +161,13 @@ class Wood(BaseSimObject):
             assert len(choices) == n_fasteners_to_sample
             fasteners_to_attempt = pickable_fasteners[choices]
 
-        attempted_pick = False
         picks: List[Fastener] = []
+
         for fastener in fasteners_to_attempt:
             fastener_type = fastener[_FASTENER_IDX]
-            pick_probability = pick_probabilities.get(fastener_type, 0.0)
 
-            if pick_probability != 0:
-                attempted_pick = True
+            pick_probability = pick_probabilities[fastener_type]
+            assert pick_probability > 0
 
             if random.random() > pick_probability:
                 # The pick failed
@@ -169,6 +179,9 @@ class Wood(BaseSimObject):
 
             # Track the pick
             picks.append(fastener_type)
+
+        # Do some sanity checks here
+        attempted_pick = len(fasteners_to_attempt) > 0
 
         self._total_picked_fasteners += len(picks)
         return picks, attempted_pick
@@ -197,12 +210,16 @@ class Wood(BaseSimObject):
             self._fasteners[:, _POSITION_IDX] += distance
 
         # Backfill the new empty space in the buffer
-        self._fasteners = self.generate_board(
-            start_pos=-_FASTENER_BUFFER_LEN,
-            end_pos=-_FASTENER_BUFFER_LEN + distance,
-            fastener_densities=self._params.fastener_densities,
-            append_to=self._fasteners,
-        )
+        end_pos = -_FASTENER_BUFFER_LEN + distance
+        if end_pos != -_FASTENER_BUFFER_LEN:
+            # Sometimes, the distance is technically nonzero, but once added with the
+            # buffer len, it becomes == buffer len due to floating point math.
+            self._fasteners = self.generate_board(
+                start_pos=-_FASTENER_BUFFER_LEN,
+                end_pos=end_pos,
+                fastener_densities=self._params.fastener_densities,
+                append_to=self._fasteners,
+            )
 
         # Clear the work-blocking flag
         self._no_new_work = False
@@ -229,7 +246,7 @@ class Wood(BaseSimObject):
         """
         """Returns more board"""
         if not end_pos > start_pos:
-            raise ValueError("Length cannot be invalid!")
+            raise ValueError(f"Length cannot be invalid! {start_pos=} {end_pos=}")
 
         board = append_to
         length = end_pos - start_pos
