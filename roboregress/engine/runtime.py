@@ -46,6 +46,7 @@ class SimulationRuntime:
         """Step the simulation
 
         :raises NoObjectsToStep: If the runtime has no objects registered
+        :raises ValueError: If there's an unexpected inconsistency with timestamps
         """
         if len(self._sim_objects) == 0:
             raise NoObjectsToStep("The runtime has no associated objects!")
@@ -53,7 +54,11 @@ class SimulationRuntime:
         # Get the next-to-awake timestamp in the _sleeping_objects list
         if len(self._sleeping_objects):
             next_awake_timestamp = sorted(self._sleeping_objects.values())[0]
-            assert next_awake_timestamp > self._timestamp
+            if next_awake_timestamp < self._timestamp:
+                raise ValueError(
+                    f"All sleeping objects should be woken on the same timestamp! "
+                    f"{next_awake_timestamp=} {self.timestamp=}"
+                )
             self._timestamp = next_awake_timestamp
 
         for sim_object in self._sim_objects:
@@ -62,14 +67,17 @@ class SimulationRuntime:
                 if self._timestamp < self._sleeping_objects[sim_object]:
                     continue
                 else:
-                    self._sleeping_objects.pop(sim_object)
+                    wake_ts = self._sleeping_objects.pop(sim_object)
+                    assert wake_ts == self._timestamp
 
             sleep_seconds = sim_object.step()
-            if sleep_seconds is not None and sleep_seconds != 0:
+
+            if sleep_seconds is not None:
                 assert isinstance(sleep_seconds, float)
-                # Round at 10 decimal places to help prevent floating point drift
-                next_awake = round(self.timestamp + sleep_seconds, 10)
-                self._sleeping_objects[sim_object] = next_awake
+                if sleep_seconds <= 0:
+                    raise ValueError(f"Sleep must be a positive number! {sleep_seconds}")
+
+                self._sleeping_objects[sim_object] = self.timestamp + sleep_seconds
 
     def step_until(self, timestamp: float, visualization: bool = False) -> None:
         """Run the engine until it is at or past the specified timestamp"""

@@ -1,3 +1,4 @@
+import math
 from typing import Generator, List, Optional
 
 import open3d as o3d
@@ -122,4 +123,4 @@ def test_step_until():
     runtime.step_until(10000)
 
     assert obj_a.call_count == 9092
-    assert runtime.timestamp == 10000.1
+    assert math.isclose(runtime.timestamp, 10000.1)
