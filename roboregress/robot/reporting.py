@@ -1,13 +1,25 @@
 from pathlib import Path
 from typing import List
 
-from bokeh.io import save, show
-from bokeh.layouts import layout
-from bokeh.models import ColumnDataSource
+from bokeh.io import curdoc, output_file, show
+from bokeh.layouts import gridplot
+from bokeh.models import ColumnDataSource, Div
 from bokeh.models.widgets import DataTable, TableColumn
 from pydantic import BaseModel, Field
 
 from roboregress.robot.statistics import StatsTracker
+
+_CODE_BLOCK_STYLE = {
+    "font-family": "Monaco, monospace",
+    "display": "block",
+    "background-color": "#eee",
+    "white-space": "pre",
+    "-webkit-overflow-scrolling": "touch",
+    "overflow-x": "scroll",
+    "max-width": "100%",
+    "min-width": "100%",
+    "padding": "0.2em",
+}
 
 
 class RobotTable(BaseModel):
@@ -27,7 +39,7 @@ class HighLevelTable(BaseModel):
     processed_feet: List[float] = Field(default_factory=list)
 
 
-def render_stats(stats: StatsTracker, save_to: Path) -> None:
+def render_stats(stats: StatsTracker, save_to: Path, config_file: Path) -> None:
     """Generate and open a report in browser"""
 
     # Gather the per-robot statistics
@@ -53,12 +65,16 @@ def render_stats(stats: StatsTracker, save_to: Path) -> None:
     overall_table.board_feet_per_day_2x12.append(round((daily_throughput_feet * ((2 * 12) / 12))))
     overall_table.throughput_feet_per_day.append(round(daily_throughput_feet))
 
+    output_file(save_to)
     robot_table_plot = render_pydantic_table(robot_table)
     overall_table_plot = render_pydantic_table(overall_table)
+    input_yaml = Div(text=config_file.read_text(), render_as_text=False, style=_CODE_BLOCK_STYLE)
 
-    final = layout([robot_table_plot, overall_table_plot], sizing_mode="stretch_both")
+    final = gridplot(
+        [[robot_table_plot, overall_table_plot], [input_yaml]], sizing_mode="stretch_both"
+    )
+    curdoc().theme = "dark_minimal"
     show(final)
-    save(final, filename=save_to, title=save_to.name)
 
 
 def render_pydantic_table(model: BaseModel) -> DataTable:

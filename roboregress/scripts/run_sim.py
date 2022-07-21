@@ -30,7 +30,7 @@ def main() -> None:
     runtime.step_until(timestamp=args.time, visualization=args.visualize)
 
     save_to = args.save_to if args.save_to else args.config.with_suffix(".html")
-    render_stats(stats, save_to=save_to)
+    render_stats(stats, save_to=save_to, config_file=args.config)
     print("Finished Simulation!")
 
 
