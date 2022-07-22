@@ -3,14 +3,14 @@ default_cell_width: 0.5
 
 wood:
   fastener_densities:
-    staple: 3
-    flush_nail: 5
-    offset_nail: 10
-    screw: 1
+    staple: 0.1
+    flush_nail: 6.45
+    offset_nail: 12.9
+    screw: 0.6
 
 conveyor:
   move_speed: 0.5
-#  move_increment: 0.35
+#  move_increment: 0.25
 
 common_rake_params: &common_rake_params
   rake_cycle_seconds: 6.5
