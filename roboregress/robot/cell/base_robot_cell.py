@@ -3,6 +3,7 @@ from math import pi
 from typing import TYPE_CHECKING, Dict, Generic, List, Tuple, TypeVar
 
 import numpy as np
+import numpy.typing as npt
 import open3d as o3d
 from pydantic import BaseModel
 
@@ -92,20 +93,8 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
         """Do the smallest amount of picking that this robot can do in a single unit,
         and return how many seconds it took to do it."""
 
-    def draw(self) -> List[o3d.geometry.Geometry]:
-        surface_dir = np.array(SURFACE_NORMALS[self.params.pickable_surface])
-        position = surface_dir * ROBOT_DIST_FROM_CELL_CENTER
-        position += (self.center, 0, 0)
-
-        box: o3d.geometry.TriangleMesh = o3d.geometry.TriangleMesh.create_box(
-            width=self.width, height=ROBOT_HEIGHT, depth=ROBOT_WIDTH
-        )
-
-        # Orient the rectangle to 'face' the surface it corresponds to
-        if position[1] == 0:
-            box.rotate(box.get_rotation_matrix_from_xyz((pi / 2, 0, 0)))
-
-        box.translate(position - box.get_center())
+    def _calculate_color(self) -> npt.NDArray[np.float64]:
+        """Return the color that the geometry should be drawn as"""
 
         if self._stats.work_timer.currently_working:
             color = np.array(self.color)
@@ -113,6 +102,29 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
             color = np.array(self.color, dtype=np.float64)
             color += (0.5, 0.5, 0.5)
             color = np.clip(color, a_min=0, a_max=1)
+        return color
 
-        box.paint_uniform_color(color)
-        return [box]
+    def _calculate_position(self) -> npt.NDArray[np.float64]:
+        surface_dir = np.array(SURFACE_NORMALS[self.params.pickable_surface])
+        position = surface_dir * ROBOT_DIST_FROM_CELL_CENTER
+        position += (self.center, 0, 0)
+        return position  # type: ignore
+
+    def _calculate_workspace_box(self) -> o3d.geometry.TriangleMesh:
+        box: o3d.geometry.TriangleMesh = o3d.geometry.TriangleMesh.create_box(
+            width=self.width, height=ROBOT_HEIGHT, depth=ROBOT_WIDTH
+        )
+        position = self._calculate_position()
+
+        # Orient the rectangle to 'face' the surface it corresponds to
+        if position[1] == 0:
+            box.rotate(box.get_rotation_matrix_from_xyz((pi / 2, 0, 0)))
+
+        box.translate(position - box.get_center())
+
+        box.paint_uniform_color(self._calculate_color())
+        return box
+
+    def draw(self) -> List[o3d.geometry.TriangleMesh]:
+        """Returns the position and rotation of what the geometry should be drawn as"""
+        return [self._calculate_workspace_box()]
