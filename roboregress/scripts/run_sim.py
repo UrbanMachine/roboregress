@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
+from roboregress.engine import Visualizer
 from roboregress.robot.configuration import runtime_from_file
 from roboregress.robot.reporting import render_stats
 
@@ -27,7 +28,8 @@ def main() -> None:
 
     runtime, stats = runtime_from_file(args.config)
 
-    runtime.step_until(timestamp=args.time, visualization=args.visualize)
+    visualizer = Visualizer(statistics=stats) if args.visualize else None
+    runtime.step_until(timestamp=args.time, visualizer=visualizer)
 
     save_to = args.save_to if args.save_to else args.config.with_suffix(".html")
     render_stats(stats, save_to=save_to, config_file=args.config)

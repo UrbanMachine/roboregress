@@ -93,6 +93,8 @@ class WoodStats(WorkTimeTracker):
 
     @property
     def throughput_meters(self) -> float:
+        if self._runtime.timestamp == 0:
+            return 0
         return self.total_meters_processed / self._runtime.timestamp
 
     @property

@@ -5,7 +5,7 @@ import yaml
 from pydantic import BaseModel
 
 from roboregress.engine import SimulationRuntime
-from roboregress.robot.cell import BigBird, Rake
+from roboregress.robot.cell import BigBird, Rake, RollingRake
 from roboregress.robot.cell.screw_manipulator import ScrewManipulator
 from roboregress.robot.conveyor import DumbWoodConveyor, GreedyWoodConveyor
 from roboregress.robot.statistics import StatsTracker
@@ -23,7 +23,11 @@ class SimConfig(BaseModel):
     default_cell_width: float
     """Workspace within a cell"""
 
-    pickers: List[Union[Rake.Parameters, BigBird.Parameters, ScrewManipulator.Parameters]]
+    pickers: List[
+        Union[
+            Rake.Parameters, BigBird.Parameters, ScrewManipulator.Parameters, RollingRake.Parameters
+        ]
+    ]
 
 
 CONVEYOR_MAPPING = {
@@ -32,6 +36,7 @@ CONVEYOR_MAPPING = {
 }
 ROBOT_MAPPING = {
     Rake.Parameters: Rake,
+    RollingRake.Parameters: RollingRake,
     BigBird.Parameters: BigBird,
     ScrewManipulator.Parameters: ScrewManipulator,
 }
