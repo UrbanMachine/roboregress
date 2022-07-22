@@ -18,6 +18,11 @@ common_rake_params: &common_rake_params
   pick_probabilities:
     offset_nail: 0.9
 
+common_rolling_rake_params: &common_rolling_rake_params
+  rolling_rake_cycle_seconds: 0.000001
+  pick_probabilities:
+    offset_nail: 0.9
+
 common_big_bird_params: &common_big_bird_params
   big_bird_pick_seconds: 4
   working_width: 0.345
