@@ -68,7 +68,7 @@ def render_stats(stats: StatsTracker, save_to: Path, config_file: Path) -> None:
     overall_table.throughput_feet_per_day.append(round(daily_throughput_feet))
 
     # Create the output plots
-    output_file(save_to)
+    output_file(save_to, title=save_to.stem.title().replace("_", " "))
     robot_table_plot = render_pydantic_table(robot_table)
     overall_table_plot = render_pydantic_table(overall_table)
     missed_fasteners_plot = render_dict_table(stats.missed_fasteners)
