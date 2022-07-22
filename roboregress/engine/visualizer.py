@@ -6,7 +6,7 @@ import open3d as o3d
 from open3d.visualization import gui, rendering
 
 if TYPE_CHECKING:
-    from roboregress.robot.statistics import WoodStats
+    from roboregress.robot.statistics import StatsTracker
 
 
 class Visualizer:
