@@ -1,5 +1,5 @@
 import random
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 import open3d as o3d
@@ -24,7 +24,6 @@ class SimulationRuntime:
     """An object that can run the simulation engine"""
 
     def __init__(self) -> None:
-        self._visualization = False
         self._timestamp: float = 0
         self._sim_objects: List[BaseSimObject] = []
         self._sleeping_objects: Dict[BaseSimObject, float] = {}
@@ -79,14 +78,13 @@ class SimulationRuntime:
 
                 self._sleeping_objects[sim_object] = self.timestamp + sleep_seconds
 
-    def step_until(self, timestamp: float, visualization: bool = False) -> None:
+    def step_until(self, timestamp: float, visualizer: Optional[Visualizer] = None) -> None:
         """Run the engine until it is at or past the specified timestamp"""
         consecutive_steps_without_change = 0
         """Track if theres ever more than 1 step in a row where the timestamp didn't
         increment. This can happen if the objects aren't yielding sleeps, which means
         the user of this runtime isn't actually doing anything useful with it...
         """
-        visualizer = Visualizer() if visualization else None
 
         while self._timestamp < timestamp:
             # TODO: Add a check to make sure timestamp changes between consecutive runs
