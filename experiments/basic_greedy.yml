@@ -38,7 +38,7 @@ common_screw_manipulator_params: &common_screw_manipulator_params
     screw: 0.6
 
 pickers:
-  - <<: *common_rake_params
+  - <<: *common_rolling_rake_params
   - <<: *common_big_bird_params
   - <<: *common_big_bird_params
   - <<: *common_big_bird_params
