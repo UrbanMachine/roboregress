@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from roboregress.robot.statistics import RobotStats, WorkTimeTracker
+from roboregress.robot.statistics import WorkTimeTracker
 
 
 def test_time_tracker():
