@@ -1,9 +1,10 @@
 from abc import ABC
 from copy import deepcopy
-from typing import List
+from typing import Generic, List, TypeVar
 
 import numpy as np
 import open3d as o3d
+from pydantic import BaseModel
 
 from roboregress.engine import BaseSimObject
 from roboregress.robot.cell import BaseRobotCell
@@ -11,14 +12,19 @@ from roboregress.robot.statistics import WoodStats
 from roboregress.robot.vis_constants import ROBOT_WIDTH
 from roboregress.wood import Wood
 
+BaseParams = TypeVar("BaseParams", bound=BaseModel)
 
-class BaseWoodConveyor(BaseSimObject, ABC):
+
+class BaseWoodConveyor(BaseSimObject, ABC, Generic[BaseParams]):
     """An object in charge of organizing how far to move the wood at a time"""
 
     color = (0.3, 0.3, 1.0)
 
-    def __init__(self, cells: List[BaseRobotCell], wood: Wood, wood_stats: WoodStats):
+    def __init__(
+        self, parameters: BaseParams, cells: List[BaseRobotCell], wood: Wood, wood_stats: WoodStats
+    ):
         super().__init__()
+        self.params = parameters
         self.cells = cells
         self.wood = wood
         self.stats = wood_stats

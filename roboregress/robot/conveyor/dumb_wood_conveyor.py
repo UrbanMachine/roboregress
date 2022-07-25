@@ -10,7 +10,7 @@ from ..statistics import WoodStats
 from .base_wood_conveyor import BaseWoodConveyor
 
 
-class DumbWoodConveyor(BaseWoodConveyor):
+class DumbWoodConveyor(BaseWoodConveyor["DumbWoodConveyor.Parameters"]):
     """A simple conveyor that moves the wood forward by an increment after each cell
     has operated once"""
 
@@ -24,8 +24,7 @@ class DumbWoodConveyor(BaseWoodConveyor):
     def __init__(
         self, params: Parameters, cells: List[BaseRobotCell], wood: Wood, wood_stats: WoodStats
     ):
-        super().__init__(cells=cells, wood=wood, wood_stats=wood_stats)
-        self._params = params
+        super().__init__(cells=cells, wood=wood, wood_stats=wood_stats, parameters=params)
 
     def _loop(self) -> LoopGenerator:
         while True:
@@ -36,6 +35,6 @@ class DumbWoodConveyor(BaseWoodConveyor):
                 yield None
 
             # Move the wood!
-            self.wood.move(self._params.move_increment)
+            self.wood.move(self.params.move_increment)
             with self.stats.time():
-                yield self._params.move_increment / self._params.move_speed
+                yield self.params.move_increment / self.params.move_speed

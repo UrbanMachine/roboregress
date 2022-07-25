@@ -24,9 +24,9 @@ class MovedWhileWorkActive(Exception):
 
 
 # Create constants to represent the API for the fastener array
-_POSITION_IDX = 0
-_SURFACE_IDX = 1
-_FASTENER_IDX = 2
+POSITION_IDX = 0
+SURFACE_IDX = 1
+FASTENER_IDX = 2
 
 _FASTENER_BUFFER_LEN = 10
 """How many meters of fasteners to have generated before the first cell of the robot.
@@ -79,8 +79,8 @@ class Wood(BaseSimObject):
         if self._fasteners is None:
             return {}
 
-        missed_fasteners = self._fasteners[self._fasteners[:, _POSITION_IDX] > after_pos]
-        missed_fastener_types = missed_fasteners[:, _FASTENER_IDX].tolist()
+        missed_fasteners = self._fasteners[self._fasteners[:, POSITION_IDX] > after_pos]
+        missed_fastener_types = missed_fasteners[:, FASTENER_IDX].tolist()
         missed = dict(Counter(missed_fastener_types))
         return {f: missed.get(f, 0) for f in Fastener}
 
@@ -137,10 +137,10 @@ class Wood(BaseSimObject):
             return [], False
 
         fasteners_in_range_mask = np.logical_and(
-            self._fasteners[:, _POSITION_IDX] > start_pos,
-            self._fasteners[:, _POSITION_IDX] <= end_pos,
+            self._fasteners[:, POSITION_IDX] > start_pos,
+            self._fasteners[:, POSITION_IDX] <= end_pos,
         )
-        fasteners_on_surface_mask = self._fasteners[:, _SURFACE_IDX] == from_surface
+        fasteners_on_surface_mask = self._fasteners[:, SURFACE_IDX] == from_surface
         pickable_fasteners_mask = np.logical_and(fasteners_in_range_mask, fasteners_on_surface_mask)
 
         # Now filter for fastener types that have nonzero chance of being picked
@@ -150,7 +150,7 @@ class Wood(BaseSimObject):
                 # Filter out unpickable fasteners
                 pickable_fasteners_mask = np.logical_and(
                     pickable_fasteners_mask,
-                    self._fasteners[:, _FASTENER_IDX] != fastener_type,
+                    self._fasteners[:, FASTENER_IDX] != fastener_type,
                 )
 
         # Finally, apply the mask to select only pickable fasteners
@@ -169,7 +169,7 @@ class Wood(BaseSimObject):
         picks: List[Fastener] = []
 
         for fastener in fasteners_to_attempt:
-            fastener_type = fastener[_FASTENER_IDX]
+            fastener_type = fastener[FASTENER_IDX]
 
             pick_probability = pick_probabilities[fastener_type]
             assert pick_probability > 0
@@ -212,7 +212,7 @@ class Wood(BaseSimObject):
 
         # "translate" all fasteners by adding the distance
         if self._fasteners is not None:
-            self._fasteners[:, _POSITION_IDX] += distance
+            self._fasteners[:, POSITION_IDX] += distance
 
         # Backfill the new empty space in the buffer
         end_pos = -_FASTENER_BUFFER_LEN + distance
@@ -288,13 +288,13 @@ class Wood(BaseSimObject):
         point_cloud = o3d.geometry.PointCloud()
         for fastener_type in Fastener:
             # Create the list of points representing the fasteners on this surface
-            fasteners = self._fasteners[self._fasteners[:, _FASTENER_IDX] == fastener_type]
+            fasteners = self._fasteners[self._fasteners[:, FASTENER_IDX] == fastener_type]
             points_on_surface = np.zeros((len(fasteners), 3))
-            points_on_surface[:, 0] = fasteners[:, _POSITION_IDX].copy()
+            points_on_surface[:, 0] = fasteners[:, POSITION_IDX].copy()
 
             # Translate it so the line of points is 'closer' to the appropriate surface
             for i in range(len(points_on_surface)):
-                surface = fasteners[i, _SURFACE_IDX]
+                surface = fasteners[i, SURFACE_IDX]
                 translate = np.array(SURFACE_NORMALS[surface]) * WOOD_DIST_FROM_CELL_CENTER
                 points_on_surface[i] += translate
 

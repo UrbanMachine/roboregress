@@ -6,9 +6,9 @@ import pytest
 from roboregress.wood import Fastener, Surface
 from roboregress.wood.wood import (
     _FASTENER_BUFFER_LEN,
-    _FASTENER_IDX,
-    _POSITION_IDX,
-    _SURFACE_IDX,
+    FASTENER_IDX,
+    POSITION_IDX,
+    SURFACE_IDX,
     MovedWhileWorkActive,
     MoveScheduled,
     Wood,
@@ -173,7 +173,7 @@ def test_moving_wood():
     _validate_fasteners_array(wood)
     assert wood.board_length == _FASTENER_BUFFER_LEN
     assert wood.processed_board == 0
-    initial_highest_fastener_pos = np.max(wood._fasteners[:, _POSITION_IDX])
+    initial_highest_fastener_pos = np.max(wood._fasteners[:, POSITION_IDX])
 
     wood.move(9.5)
     assert not wood._no_new_work, "This flag should have been cleared!"
@@ -185,7 +185,7 @@ def test_moving_wood():
     assert wood.processed_board == 1009.5
     _validate_fasteners_array(wood)
 
-    final_highest_fastener_pos = np.max(wood._fasteners[:, _POSITION_IDX])
+    final_highest_fastener_pos = np.max(wood._fasteners[:, POSITION_IDX])
     assert initial_highest_fastener_pos + 1009.5 == final_highest_fastener_pos
 
 
@@ -195,16 +195,16 @@ def _validate_fasteners_array(wood: Wood):
         return
 
     fasteners = wood._fasteners
-    lowest_point = np.min(fasteners[:, _POSITION_IDX])
+    lowest_point = np.min(fasteners[:, POSITION_IDX])
 
     # No fasteners should exist below the buffer line
     assert lowest_point > -_FASTENER_BUFFER_LEN
 
     # No fasteners should (in all likelyhood) have the exact same position
-    assert len(set(fasteners[:, _POSITION_IDX])) == len(fasteners)
+    assert len(set(fasteners[:, POSITION_IDX])) == len(fasteners)
 
     # Validate fastener counts are close to the expected densities
-    fastener_counts = {ft: np.count_nonzero(fasteners[:, _FASTENER_IDX] == ft) for ft in Fastener}
+    fastener_counts = {ft: np.count_nonzero(fasteners[:, FASTENER_IDX] == ft) for ft in Fastener}
     # Quick logic check to make sure the test functions as expected
     assert sum(c for c in fastener_counts.values()) == len(fasteners)
 
@@ -214,6 +214,6 @@ def _validate_fasteners_array(wood: Wood):
 
     # Validate the types in each index of the array
     for cell in fasteners:
-        assert isinstance(cell[_POSITION_IDX], float)
-        assert isinstance(cell[_SURFACE_IDX], Surface)
-        assert isinstance(cell[_FASTENER_IDX], Fastener)
+        assert isinstance(cell[POSITION_IDX], float)
+        assert isinstance(cell[SURFACE_IDX], Surface)
+        assert isinstance(cell[FASTENER_IDX], Fastener)

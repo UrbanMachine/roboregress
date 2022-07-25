@@ -1,23 +1,30 @@
+from pydantic import BaseModel
+
 from roboregress.engine.base_simulation_object import LoopGenerator
 
-from .base_greedy_wood_conveyor import BaseGreedyWoodConveyor
+from . import BaseWoodConveyor
+from .utils.furthest_move import calculate_furthest_cell
 
 
-class GreedyWoodConveyor(BaseGreedyWoodConveyor):
+class GreedyWoodConveyor(BaseWoodConveyor["GreedyWoodConveyor.Parameters"]):
     """A simple conveyor that moves the wood forward by an increment after each cell
     has operated once"""
+
+    class Parameters(BaseModel):
+        move_speed: float
+        """How fast the wood moves, in meters/second"""
 
     def _loop(self) -> LoopGenerator:
         while True:
             # Calculate the maximum amount the wood can be moved
-            while self._calculate_furthest_cell() == 0:
+            while calculate_furthest_cell() == 0:
                 yield None
 
             self.wood.schedule_move()
             while not self.wood.ready_for_move():
                 yield None
 
-            move_increment = self._calculate_furthest_cell()
+            move_increment = calculate_furthest_cell()
             self.wood.move(move_increment)
             with self.stats.time():
-                yield move_increment / self._params.move_speed
+                yield move_increment / self.params.move_speed
