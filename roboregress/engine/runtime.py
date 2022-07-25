@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 
 import numpy as np
 import open3d as o3d
+from tqdm.auto import tqdm
 
 from .base_simulation_object import BaseSimObject
 from .visualizer import Visualizer
@@ -85,28 +86,31 @@ class SimulationRuntime:
         increment. This can happen if the objects aren't yielding sleeps, which means
         the user of this runtime isn't actually doing anything useful with it...
         """
+        with tqdm(total=timestamp, unit="s") as progress_bar:
+            while self._timestamp < timestamp:
+                # Update progress bar
+                progress_bar.n = round(self._timestamp)
+                progress_bar.refresh(progress_bar.lock_args)
 
-        while self._timestamp < timestamp:
-            # TODO: Add a check to make sure timestamp changes between consecutive runs
-            previous_stamp = self.timestamp
-            self.step()
+                previous_stamp = self.timestamp
+                self.step()
 
-            if previous_stamp == self.timestamp:
-                consecutive_steps_without_change += 1
-            else:
-                consecutive_steps_without_change = 0
+                if previous_stamp == self.timestamp:
+                    consecutive_steps_without_change += 1
+                else:
+                    consecutive_steps_without_change = 0
 
-            if consecutive_steps_without_change > 1:
-                raise NoTimestampProgression(
-                    f"There have been {consecutive_steps_without_change} simulation "
-                    f"steps in a row without the timestamp changing. This means that "
-                    f"the simulation objects in the engine aren't requesting sleeps! "
-                    f"Is there a logic error somewhere?"
-                )
+                if consecutive_steps_without_change > 1:
+                    raise NoTimestampProgression(
+                        f"There have been {consecutive_steps_without_change} simulation "
+                        f"steps in a row without the timestamp changing. This means that "
+                        f"the simulation objects in the engine aren't requesting sleeps! "
+                        f"Is there a logic error somewhere?"
+                    )
 
-            if visualizer:
-                geometries: List[o3d.geometry.Geometry] = sum(
-                    [o.draw() for o in self._sim_objects], []
-                )
-                geometries.append(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3))
-                visualizer.draw(geometries, self.timestamp)
+                if visualizer:
+                    geometries: List[o3d.geometry.Geometry] = sum(
+                        [o.draw() for o in self._sim_objects], []
+                    )
+                    geometries.append(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3))
+                    visualizer.draw(geometries, self.timestamp)

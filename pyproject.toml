@@ -13,6 +13,7 @@ open3d = "^0.15.2"
 pydantic = "^1.9.1"
 glfw = "^2.5.3"
 bokeh = "^2.4.3"
+tqdm = "^4.64.0"
 
 [tool.poetry.dev-dependencies]
 darglint = "^1.8.1"
