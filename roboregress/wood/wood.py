@@ -257,7 +257,12 @@ class Wood(BaseSimObject):
         length = end_pos - start_pos
 
         for fastener_type, density in fastener_densities.items():
-            n_fasteners = int(round(length * density))
+            # Figure out how many fasteners to generate of this type
+            n_fasteners = length * density
+            if (n_fasteners % 1) > random.random():
+                # Take care of any 'remainder' by using random chance to add 1 fastener or not
+                n_fasteners += 1
+            n_fasteners = int(n_fasteners)
 
             new_fasteners = np.array(
                 [
