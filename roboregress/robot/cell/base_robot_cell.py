@@ -46,6 +46,10 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
         self._wood = wood
         self._stats = stats_tracker.create_robot_stats_tracker(self)
 
+        assert all(
+            p > 0 for p in self.params.pick_probabilities.values()
+        ), "Pick probabilities must be nonzero!"
+
     def _loop(self) -> LoopGenerator:
         while True:
             try:
