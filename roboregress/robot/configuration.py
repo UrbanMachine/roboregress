@@ -75,7 +75,7 @@ def runtime_from_file(file: Path) -> Tuple[SimulationRuntime, StatsTracker]:
         pos += config.default_cell_distance + params.working_width
 
     conveyor = CONVEYOR_MAPPING[type(config.conveyor)](
-        parameters=config.conveyor, wood=wood, cells=cells, wood_stats=stats.wood
+        params=config.conveyor, wood=wood, cells=cells, wood_stats=stats.wood
     )
 
     runtime.register(*cells, wood, conveyor)
