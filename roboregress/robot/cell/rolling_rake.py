@@ -6,14 +6,11 @@ import open3d as o3d
 from roboregress.wood.fasteners import Fastener
 
 from ..vis_constants import ROBOT_HEIGHT, ROBOT_WIDTH
+from .base_rake import BaseRakeMixin
 from .base_robot_cell import BaseRobotCell
 
 
-class RollingRake(BaseRobotCell["RollingRake.Parameters"]):
-    color = (1, 0, 0)
-    _last_rake_wood_pos = 0.0
-    """Keep track of the position of the wood, to know what has and hasn't been raked"""
-
+class RollingRake(BaseRakeMixin, BaseRobotCell["RollingRake.Parameters"]):
     class Parameters(BaseRobotCell.Parameters):
         rolling_rake_cycle_seconds: float
         """The seconds it takes to run the rake once"""
@@ -21,14 +18,15 @@ class RollingRake(BaseRobotCell["RollingRake.Parameters"]):
         working_width: float = 0
 
     def _run_pick(self) -> Tuple[List[Fastener], float]:
-        unraked_wood = self._wood.processed_board - self._last_rake_wood_pos
-        if unraked_wood == 0:
+        rake_to = self._get_distance_to_rake_to(
+            wood=self._wood, workspace_start=self.params.start_pos
+        )
+        if rake_to == self.params.start_pos:
             return [], 0
 
-        self._last_rake_wood_pos = self._wood.processed_board
         fasteners, _ = self._wood.pick(
             start_pos=self.params.start_pos,
-            end_pos=self.params.start_pos + unraked_wood,
+            end_pos=rake_to,
             from_surface=self.params.pickable_surface,
             pick_probabilities=self.params.pick_probabilities,
             # The rake can pick 'unlimited' amounts of fasteners per rake
