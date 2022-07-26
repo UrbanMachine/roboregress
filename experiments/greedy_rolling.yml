@@ -10,6 +10,7 @@ wood:
 
 conveyor:
   move_speed: 0.5
+  optimization_increment: 0.03
 #  move_increment: 0.25
 
 common_rake_params: &common_rake_params
@@ -32,7 +33,7 @@ common_big_bird_params: &common_big_bird_params
     flush_nail: 0.7
 
 common_screw_manipulator_params: &common_screw_manipulator_params
-  screw_pick_seconds: 25
+  screw_pick_seconds: 11
   working_width: .505
   pick_probabilities:
     screw: 0.6
