@@ -21,10 +21,10 @@ class BaseWoodConveyor(BaseSimObject, ABC, Generic[BaseParams]):
     color = (0.3, 0.3, 1.0)
 
     def __init__(
-        self, parameters: BaseParams, cells: List[BaseRobotCell], wood: Wood, wood_stats: WoodStats
+        self, params: BaseParams, cells: List[BaseRobotCell], wood: Wood, wood_stats: WoodStats
     ):
         super().__init__()
-        self.params = parameters
+        self.params = params
         self.cells = cells
         self.wood = wood
         self.stats = wood_stats

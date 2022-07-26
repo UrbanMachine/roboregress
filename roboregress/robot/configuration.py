@@ -7,7 +7,11 @@ from pydantic import BaseModel
 from roboregress.engine import SimulationRuntime
 from roboregress.robot.cell import BigBird, Rake, RollingRake
 from roboregress.robot.cell.screw_manipulator import ScrewManipulator
-from roboregress.robot.conveyor import DumbWoodConveyor, GreedyWoodConveyor, OptimalWoodConveyor
+from roboregress.robot.conveyor import (
+    DumbWoodConveyor,
+    GreedyBusynessWoodConveyor,
+    GreedyDistanceWoodConveyor,
+)
 from roboregress.robot.statistics import StatsTracker
 from roboregress.wood import Surface, Wood
 
@@ -16,9 +20,9 @@ class SimConfig(BaseModel):
     wood: Wood.Parameters
 
     conveyor: Union[
-        OptimalWoodConveyor.Parameters,
+        GreedyBusynessWoodConveyor.Parameters,
         DumbWoodConveyor.Parameters,
-        GreedyWoodConveyor.Parameters,
+        GreedyDistanceWoodConveyor.Parameters,
     ]
 
     default_cell_distance: float
@@ -36,8 +40,8 @@ class SimConfig(BaseModel):
 
 CONVEYOR_MAPPING = {
     DumbWoodConveyor.Parameters: DumbWoodConveyor,
-    GreedyWoodConveyor.Parameters: GreedyWoodConveyor,
-    OptimalWoodConveyor.Parameters: OptimalWoodConveyor,
+    GreedyDistanceWoodConveyor.Parameters: GreedyDistanceWoodConveyor,
+    GreedyBusynessWoodConveyor.Parameters: GreedyBusynessWoodConveyor,
 }
 ROBOT_MAPPING = {
     Rake.Parameters: Rake,

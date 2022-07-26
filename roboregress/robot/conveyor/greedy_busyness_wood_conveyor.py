@@ -7,7 +7,7 @@ from .utils.busyness import calculate_busyness_at_position
 from .utils.furthest_move import calculate_furthest_cell
 
 
-class OptimalWoodConveyor(BaseWoodConveyor["OptimalWoodConveyor.Parameters"]):
+class GreedyBusynessWoodConveyor(BaseWoodConveyor["GreedyBusynessWoodConveyor.Parameters"]):
     """A simple conveyor that moves the wood forward by an increment after each cell
     has operated once"""
 

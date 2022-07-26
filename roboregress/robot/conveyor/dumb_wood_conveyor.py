@@ -24,7 +24,7 @@ class DumbWoodConveyor(BaseWoodConveyor["DumbWoodConveyor.Parameters"]):
     def __init__(
         self, params: Parameters, cells: List[BaseRobotCell], wood: Wood, wood_stats: WoodStats
     ):
-        super().__init__(cells=cells, wood=wood, wood_stats=wood_stats, parameters=params)
+        super().__init__(cells=cells, wood=wood, wood_stats=wood_stats, params=params)
 
     def _loop(self) -> LoopGenerator:
         while True:
