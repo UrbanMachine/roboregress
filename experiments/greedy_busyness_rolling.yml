@@ -3,10 +3,12 @@ default_cell_width: 0.5
 
 wood:
   fastener_densities:
+    # Guesses
     staple: 0.1
+    screw: 0.6
+    # Based on real data
     flush_nail: 6.45
     offset_nail: 12.9
-    screw: 0.6
 
 conveyor:
   move_speed: 0.5
