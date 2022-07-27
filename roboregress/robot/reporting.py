@@ -33,8 +33,8 @@ class RobotTable(BaseModel):
 
 class HighLevelTable(BaseModel):
     total_time: List[float] = Field(default_factory=list)
-    throughput_feet_per_day: List[float] = Field(default_factory=list)
-    board_feet_per_day_2x12: List[float] = Field(default_factory=list)
+    throughput_feet_per_8_hrs: List[float] = Field(default_factory=list)
+    board_feet_per_8_hrs_2x12: List[float] = Field(default_factory=list)
     total_fasteners: List[int] = Field(default_factory=list)
     processed_feet: List[float] = Field(default_factory=list)
 
@@ -63,9 +63,9 @@ def render_stats(stats: StatsTracker, save_to: Path, config_file: Path) -> None:
     overall_table.total_fasteners.append(stats.wood.total_picked_fasteners)
     overall_table.processed_feet.append(round(stats.wood.total_feet_processed))
 
-    daily_throughput_feet = stats.wood.throughput_feet * 60 * 60 * 24
-    overall_table.board_feet_per_day_2x12.append(round((daily_throughput_feet * ((2 * 12) / 12))))
-    overall_table.throughput_feet_per_day.append(round(daily_throughput_feet))
+    daily_throughput_feet = stats.wood.throughput_feet * 60 * 60 * 8
+    overall_table.board_feet_per_8_hrs_2x12.append(round((daily_throughput_feet * ((2 * 12) / 12))))
+    overall_table.throughput_feet_per_8_hrs.append(round(daily_throughput_feet))
 
     # Create the output plots
     output_file(save_to, title=save_to.stem.title().replace("_", " "))
