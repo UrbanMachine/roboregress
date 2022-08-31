@@ -1,0 +1,44 @@
+default_cell_distance: 0.254
+default_cell_width: 0.65
+
+wood:
+  fastener_densities:
+    # Guesses
+    staple: 0.1
+    screw: 0.6
+    # Based on real data
+    flush_nail: 6.45
+    offset_nail: 12.9
+
+conveyor:
+  move_speed: 0.5
+  optimization_increment: 0.015
+#  move_increment: 0.25
+
+common_rake_params: &common_rake_params
+  rake_cycle_seconds: 4.0  # Actually 6.5
+  working_width: 0.1
+  pick_probabilities:
+    offset_nail: 0.9
+
+common_rolling_rake_params: &common_rolling_rake_params
+  rolling_rake_cycle_seconds: 0.000001
+  pick_probabilities:
+    offset_nail: 0.9
+
+common_big_bird_params: &common_big_bird_params
+  big_bird_pick_seconds: 4
+  pick_probabilities:
+    offset_nail: 0.9
+    staple: 0.8
+    flush_nail: 0.7
+
+common_screw_manipulator_params: &common_screw_manipulator_params
+  screw_pick_seconds: 11
+  pick_probabilities:
+    screw: 0.6
+
+pickers:
+  - <<: *common_rake_params
+  - <<: *common_big_bird_params
+
