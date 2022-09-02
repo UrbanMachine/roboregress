@@ -42,3 +42,12 @@ After running `poetry install`, the script can be run via:
 ```
 run_sim --visualize --config experiments/basic.yml
 ```
+
+### Running many experiments
+Sometimes it's desirable to run the simulation many times over, simultaneously. 
+
+The following command will find all *.yml files recursively from the current directory
+and run the sim on all of them, in parallel:
+```bash
+find . -name '*.yml' -print0 | parallel -0 --progress 'run_sim -c {}'
+```
