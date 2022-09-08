@@ -92,6 +92,15 @@ class SimulationRuntime:
                 progress_bar.n = round(self._timestamp)
                 progress_bar.refresh(progress_bar.lock_args)
 
+                # Update visualization
+                if visualizer and consecutive_steps_without_change == 0:
+                    geometries: List[o3d.geometry.Geometry] = sum(
+                        [o.draw() for o in self._sim_objects], []
+                    )
+                    geometries.append(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3))
+                    visualizer.draw(geometries, self.timestamp)
+
+                # Step the system
                 previous_stamp = self.timestamp
                 self.step()
 
@@ -107,10 +116,3 @@ class SimulationRuntime:
                         f"the simulation objects in the engine aren't requesting sleeps! "
                         f"Is there a logic error somewhere?"
                     )
-
-                if visualizer:
-                    geometries: List[o3d.geometry.Geometry] = sum(
-                        [o.draw() for o in self._sim_objects], []
-                    )
-                    geometries.append(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3))
-                    visualizer.draw(geometries, self.timestamp)
