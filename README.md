@@ -11,9 +11,6 @@ _________________
 [![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://timothycrosley.github.io/isort/)
 _________________
 
-[Read Latest Documentation](https://urbanmachine.github.io/roboregress/) - [Browse GitHub Code Repository](https://github.com/urbanmachine/roboregress/)
-_________________
-
 ## Development
 
 ### Installing python dependencies
