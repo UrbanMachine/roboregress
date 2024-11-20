@@ -1,7 +1,7 @@
 import contextlib
 import random
 from collections import Counter
-from typing import Dict, Generator, List, Optional, Tuple
+from collections.abc import Generator
 
 import numpy as np
 import numpy.typing as npt
@@ -35,7 +35,7 @@ This number will keep fasteners populated in the region from -buffer_len -> 0.0"
 
 class Wood(BaseSimObject):
     class Parameters(BaseModel):
-        fastener_densities: Dict[Fastener, float]
+        fastener_densities: dict[Fastener, float]
         """Number of fasteners per meter, adjuster for each fastener type"""
 
     def __init__(self, parameters: Parameters) -> None:
@@ -74,7 +74,7 @@ class Wood(BaseSimObject):
         """How much board has entered the robot"""
         return self._total_picked_fasteners
 
-    def missed_fasteners(self, after_pos: float = 0) -> Dict[Fastener, int]:
+    def missed_fasteners(self, after_pos: float = 0) -> dict[Fastener, int]:
         """Count how many fasteners of each type exist past the given position mark"""
         if self._fasteners is None:
             return {}
@@ -90,7 +90,7 @@ class Wood(BaseSimObject):
         return self._total_translated + _FASTENER_BUFFER_LEN
 
     @property
-    def fasteners(self) -> Optional[npt.NDArray[np.float64]]:
+    def fasteners(self) -> npt.NDArray[np.float64] | None:
         if self._fasteners is None:
             return self._fasteners
         return self._fasteners.copy()
@@ -99,7 +99,7 @@ class Wood(BaseSimObject):
     def work_lock(self) -> Generator[None, None, None]:
         """Lock the workpiece in order to pick"""
         if self._no_new_work:
-            raise MoveScheduled()
+            raise MoveScheduled
 
         self._ongoing_work += 1
         yield
@@ -110,9 +110,9 @@ class Wood(BaseSimObject):
         from_surface: Surface,
         start_pos: float,
         end_pos: float,
-        pick_probabilities: Dict[Fastener, float],
-        n_fasteners_to_sample: Optional[int] = 1,
-    ) -> Tuple[List[Fastener], bool]:
+        pick_probabilities: dict[Fastener, float],
+        n_fasteners_to_sample: int | None = 1,
+    ) -> tuple[list[Fastener], bool]:
         """
         :param from_surface: What surface to attempt picking from
         :param start_pos: The 'start' of the picking range
@@ -141,10 +141,12 @@ class Wood(BaseSimObject):
             self._fasteners[:, POSITION_IDX] <= end_pos,
         )
         fasteners_on_surface_mask = self._fasteners[:, SURFACE_IDX] == from_surface
-        pickable_fasteners_mask = np.logical_and(fasteners_in_range_mask, fasteners_on_surface_mask)
+        pickable_fasteners_mask = np.logical_and(
+            fasteners_in_range_mask, fasteners_on_surface_mask
+        )
 
         # Now filter for fastener types that have nonzero chance of being picked
-        pickable_fastener_types = [t for t in pick_probabilities.keys()]
+        pickable_fastener_types = list(pick_probabilities)
         for fastener_type in Fastener:
             if fastener_type not in pickable_fastener_types:
                 # Filter out unpickable fasteners
@@ -157,7 +159,10 @@ class Wood(BaseSimObject):
         pickable_fasteners = self._fasteners[pickable_fasteners_mask]
 
         # Randomly select up to 'n_fasteners_to_sample' from the group
-        if n_fasteners_to_sample is None or len(pickable_fasteners) <= n_fasteners_to_sample:
+        if (
+            n_fasteners_to_sample is None
+            or len(pickable_fasteners) <= n_fasteners_to_sample
+        ):
             fasteners_to_attempt = pickable_fasteners
         else:
             choices = np.random.choice(
@@ -166,7 +171,7 @@ class Wood(BaseSimObject):
             assert len(choices) == n_fasteners_to_sample
             fasteners_to_attempt = pickable_fasteners[choices]
 
-        picks: List[Fastener] = []
+        picks: list[Fastener] = []
 
         for fastener in fasteners_to_attempt:
             fastener_type = fastener[FASTENER_IDX]
@@ -208,7 +213,7 @@ class Wood(BaseSimObject):
             raise ValueError("Hey now, distance must be nonzero and positive!")
 
         if not self.ready_for_move():
-            raise MovedWhileWorkActive()
+            raise MovedWhileWorkActive
 
         # "translate" all fasteners by adding the distance
         if self._fasteners is not None:
@@ -236,9 +241,9 @@ class Wood(BaseSimObject):
     def generate_board(
         start_pos: float,
         end_pos: float,
-        fastener_densities: Dict[Fastener, float],
-        append_to: Optional[npt.NDArray[np.float64]] = None,
-    ) -> Optional[npt.NDArray[np.float64]]:
+        fastener_densities: dict[Fastener, float],
+        append_to: npt.NDArray[np.float64] | None = None,
+    ) -> npt.NDArray[np.float64] | None:
         """Returns a board array
         :param start_pos: Which position to 'start' placing fasteners in
         :param end_pos: Which position to 'stop' placing fasteners in
@@ -260,7 +265,7 @@ class Wood(BaseSimObject):
             # Figure out how many fasteners to generate of this type
             n_fasteners = length * density
             if (n_fasteners % 1) > random.random():
-                # Take care of any 'remainder' by using random chance to add 1 fastener or not
+                # Take care of any 'remainder' by using random chance to add 1 fastener
                 n_fasteners += 1
             n_fasteners = int(n_fasteners)
 
@@ -275,7 +280,11 @@ class Wood(BaseSimObject):
                 ]
             )
             if len(new_fasteners):
-                board = new_fasteners if board is None else np.concatenate((board, new_fasteners))
+                board = (
+                    new_fasteners
+                    if board is None
+                    else np.concatenate((board, new_fasteners))
+                )
 
         return board
 
@@ -285,7 +294,7 @@ class Wood(BaseSimObject):
         while True:
             yield None
 
-    def draw(self) -> List[o3d.geometry.Geometry]:
+    def draw(self) -> list[o3d.geometry.Geometry]:
         # Create a point cloud with colored points for each surface
         if self._fasteners is None:
             return []
@@ -293,14 +302,18 @@ class Wood(BaseSimObject):
         point_cloud = o3d.geometry.PointCloud()
         for fastener_type in Fastener:
             # Create the list of points representing the fasteners on this surface
-            fasteners = self._fasteners[self._fasteners[:, FASTENER_IDX] == fastener_type]
+            fasteners = self._fasteners[
+                self._fasteners[:, FASTENER_IDX] == fastener_type
+            ]
             points_on_surface = np.zeros((len(fasteners), 3))
             points_on_surface[:, 0] = fasteners[:, POSITION_IDX].copy()
 
             # Translate it so the line of points is 'closer' to the appropriate surface
             for i in range(len(points_on_surface)):
                 surface = fasteners[i, SURFACE_IDX]
-                translate = np.array(SURFACE_NORMALS[surface]) * WOOD_DIST_FROM_CELL_CENTER
+                translate = (
+                    np.array(SURFACE_NORMALS[surface]) * WOOD_DIST_FROM_CELL_CENTER
+                )
                 points_on_surface[i] += translate
 
             # Create the point cloud and paint it appropriately

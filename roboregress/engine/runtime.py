@@ -1,5 +1,6 @@
+import functools
+import operator
 import random
-from typing import Dict, List, Optional
 
 import numpy as np
 import open3d as o3d
@@ -26,8 +27,8 @@ class SimulationRuntime:
 
     def __init__(self) -> None:
         self._timestamp: float = 0
-        self._sim_objects: List[BaseSimObject] = []
-        self._sleeping_objects: Dict[BaseSimObject, float] = {}
+        self._sim_objects: list[BaseSimObject] = []
+        self._sleeping_objects: dict[BaseSimObject, float] = {}
         """Holds a list of objects currently waiting to be reactivated once a certain
         timestamp is reached."""
 
@@ -75,11 +76,15 @@ class SimulationRuntime:
             if sleep_seconds is not None:
                 assert isinstance(sleep_seconds, float)
                 if sleep_seconds <= 0:
-                    raise ValueError(f"Sleep must be a positive number! {sleep_seconds}")
+                    raise ValueError(
+                        f"Sleep must be a positive number! {sleep_seconds}"
+                    )
 
                 self._sleeping_objects[sim_object] = self.timestamp + sleep_seconds
 
-    def step_until(self, timestamp: float, visualizer: Optional[Visualizer] = None) -> None:
+    def step_until(
+        self, timestamp: float, visualizer: Visualizer | None = None
+    ) -> None:
         """Run the engine until it is at or past the specified timestamp"""
         consecutive_steps_without_change = 0
         """Track if theres ever more than 1 step in a row where the timestamp didn't
@@ -94,10 +99,13 @@ class SimulationRuntime:
 
                 # Update visualization
                 if visualizer and consecutive_steps_without_change == 0:
-                    geometries: List[o3d.geometry.Geometry] = sum(
-                        [o.draw() for o in self._sim_objects], []
+                    # Flatten the list of lists
+                    geometries: list[o3d.geometry.Geometry] = functools.reduce(
+                        operator.iadd, [o.draw() for o in self._sim_objects], []
                     )
-                    geometries.append(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3))
+                    geometries.append(
+                        o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3)
+                    )
                     visualizer.draw(geometries, self.timestamp)
 
                 # Step the system
@@ -111,8 +119,8 @@ class SimulationRuntime:
 
                 if consecutive_steps_without_change > 1:
                     raise NoTimestampProgression(
-                        f"There have been {consecutive_steps_without_change} simulation "
-                        f"steps in a row without the timestamp changing. This means that "
-                        f"the simulation objects in the engine aren't requesting sleeps! "
-                        f"Is there a logic error somewhere?"
+                        f"There have been {consecutive_steps_without_change} simulation"
+                        f" steps in a row without the timestamp changing. This means "
+                        f"that the simulation objects in the engine aren't requesting "
+                        f"sleeps! Is there a logic error somewhere?"
                     )

@@ -28,14 +28,13 @@ pytest .
 
 ### Formatting Code
 ```shell
-bash .github/format.sh
+bash .github/format
 ```
 
 ### Linting
 ```shell
-bash .github/check_lint.sh
+bash .github/check_lint
 ```
-
 ## Running the Sim
 After running `poetry install`, the script can be run via:
 

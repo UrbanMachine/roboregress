@@ -1,0 +1,13 @@
+#!/bin/bash
+# This script runs the full check suite, without any automatic fixes
+set -euxo pipefail
+
+poetry run ruff check --no-fix
+poetry run ruff format --check
+poetry run mypy --ignore-missing-imports roboregress/ tests/
+poetry run darglint \
+  --strictness short \
+  --docstring-style sphinx \
+  --ignore-regex '^test_.*'
+poetry run cruft check
+echo "Lint successful!"

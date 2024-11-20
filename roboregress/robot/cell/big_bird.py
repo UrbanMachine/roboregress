@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from roboregress.wood import Fastener
 
 from .base_robot_cell import BaseRobotCell
@@ -12,7 +10,7 @@ class BigBird(BaseRobotCell["BigBird.Parameters"]):
         big_bird_pick_seconds: float
         """The seconds it takes to pick a fastener, for BigBird"""
 
-    def _run_pick(self) -> Tuple[List[Fastener], float]:
+    def _run_pick(self) -> tuple[list[Fastener], float]:
         fasteners, attempted_pick = self._wood.pick(
             start_pos=self.params.start_pos,
             end_pos=self.params.end_pos,

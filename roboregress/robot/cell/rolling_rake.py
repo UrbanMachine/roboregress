@@ -1,5 +1,4 @@
 from math import pi
-from typing import List, Tuple
 
 import open3d as o3d
 
@@ -17,7 +16,7 @@ class RollingRake(BaseRakeMixin, BaseRobotCell["RollingRake.Parameters"]):
 
         working_width: float = 0
 
-    def _run_pick(self) -> Tuple[List[Fastener], float]:
+    def _run_pick(self) -> tuple[list[Fastener], float]:
         rake_to = self._get_distance_to_rake_to(
             wood=self._wood, workspace_start=self.params.start_pos
         )
@@ -34,7 +33,7 @@ class RollingRake(BaseRakeMixin, BaseRobotCell["RollingRake.Parameters"]):
         )
         return fasteners, self.params.rolling_rake_cycle_seconds
 
-    def draw(self) -> List[o3d.geometry.Geometry]:
+    def draw(self) -> list[o3d.geometry.Geometry]:
         cylinder: o3d.geometry.TriangleMesh = o3d.geometry.TriangleMesh.create_cylinder(
             radius=ROBOT_HEIGHT, height=ROBOT_WIDTH
         )

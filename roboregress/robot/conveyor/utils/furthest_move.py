@@ -1,4 +1,4 @@
-from typing import List, cast
+from typing import Any, cast
 
 import numpy as np
 
@@ -6,7 +6,7 @@ from roboregress.robot.cell import BaseRobotCell
 from roboregress.wood import Fastener, Wood
 
 
-def calculate_furthest_cell(wood: Wood, cells: List[BaseRobotCell]) -> float:
+def calculate_furthest_cell(wood: Wood, cells: list[BaseRobotCell[Any]]) -> float:
     """Calculate the greediest possible furthest move the robot can make"""
     fasteners = wood.fasteners
 

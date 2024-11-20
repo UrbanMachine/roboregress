@@ -1,5 +1,6 @@
 import contextlib
-from typing import Dict, Generator, List, Optional, Set, Tuple
+from collections.abc import Generator
+from typing import Any
 
 from roboregress.engine import SimulationRuntime
 from roboregress.wood import Surface, Wood
@@ -18,8 +19,8 @@ class WorkTimeTracker:
         self.currently_working = False
 
         self._runtime = runtime
-        self._last_work_start: Optional[float] = None
-        self._last_work_end: Optional[float] = self._runtime.timestamp
+        self._last_work_start: float | None = None
+        self._last_work_end: float | None = self._runtime.timestamp
 
     @property
     def total_time(self) -> float:
@@ -64,7 +65,10 @@ class WorkTimeTracker:
 
 class RobotStats:
     def __init__(
-        self, robot_params: BaseRobotCell.Parameters, name: str, runtime: SimulationRuntime
+        self,
+        robot_params: BaseRobotCell.Parameters,
+        name: str,
+        runtime: SimulationRuntime,
     ):
         self.name = name
         self.robot_params = robot_params
@@ -104,15 +108,15 @@ class WoodStats(WorkTimeTracker):
 
 class StatsTracker:
     def __init__(self, runtime: SimulationRuntime, wood: Wood) -> None:
-        self.robot_stats: Set[RobotStats] = set()
+        self.robot_stats: set[RobotStats] = set()
         self.wood = WoodStats(wood=wood, runtime=runtime)
         self._runtime = runtime
 
     @property
-    def robots_by_cell(self) -> List[Tuple[int, RobotStats]]:
+    def robots_by_cell(self) -> list[tuple[int, RobotStats]]:
         """Iterate over the robots with their given 'cell id'"""
         cell_positions = self.cell_positions
-        robots_by_cell: List[Tuple[int, RobotStats]] = []
+        robots_by_cell: list[tuple[int, RobotStats]] = []
 
         for robot in self.robot_stats:
             cell_id = cell_positions.index(robot.robot_params.end_pos)
@@ -122,17 +126,19 @@ class StatsTracker:
         return robots_by_cell
 
     @property
-    def cell_positions(self) -> List[float]:
-        robot_centers = list(dict.fromkeys(r.robot_params.end_pos for r in self.robot_stats))
+    def cell_positions(self) -> list[float]:
+        robot_centers = list(
+            dict.fromkeys(r.robot_params.end_pos for r in self.robot_stats)
+        )
         robot_centers.sort()
         return robot_centers
 
     @property
-    def missed_fasteners(self) -> Dict[str, int]:
+    def missed_fasteners(self) -> dict[str, int]:
         """Return the number of each type of fasteners after the final robot cell"""
         cell_positions = self.cell_positions
         furthest_pos = cell_positions[-1] if len(cell_positions) else 0
-        missed = self.wood._wood.missed_fasteners(furthest_pos)
+        missed = self.wood._wood.missed_fasteners(furthest_pos)  # noqa: SLF001
 
         # Stringify the enums for easy rendering
         return {f.value: count for f, count in missed.items()}
@@ -141,8 +147,8 @@ class StatsTracker:
     def total_time(self) -> float:
         return self._runtime.timestamp
 
-    def create_robot_stats_tracker(self, robot: BaseRobotCell) -> RobotStats:
-        def _get_key(stats: RobotStats) -> Tuple[float, float, Surface]:
+    def create_robot_stats_tracker(self, robot: BaseRobotCell[Any]) -> RobotStats:
+        def _get_key(stats: RobotStats) -> tuple[float, float, Surface]:
             """Create a unique identifier"""
             return (
                 stats.robot_params.end_pos,

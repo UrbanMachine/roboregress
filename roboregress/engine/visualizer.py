@@ -1,6 +1,6 @@
 import faulthandler
 from time import sleep
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 import open3d as o3d
 from open3d.visualization import gui, rendering
@@ -40,7 +40,9 @@ class Visualizer:
         self._throughput_label = gui.Label("")  # Filled in .draw()
 
         em = self.window.theme.font_size
-        self.gui_layout = gui.Vert(0, gui.Margins(0.5 * em, 0.5 * em, 0.5 * em, 0.5 * em))
+        self.gui_layout = gui.Vert(
+            0, gui.Margins(0.5 * em, 0.5 * em, 0.5 * em, 0.5 * em)
+        )
         self.gui_layout.add_child(self._timestamp_label)
         self.gui_layout.add_child(self._wood_label)
         self.gui_layout.add_child(self._throughput_label)
@@ -64,16 +66,20 @@ class Visualizer:
         width = 17 * layout_context.theme.font_size
         height = min(
             r.height,
-            self.gui_layout.calc_preferred_size(layout_context, gui.Widget.Constraints()).height,
+            self.gui_layout.calc_preferred_size(
+                layout_context, gui.Widget.Constraints()
+            ).height,
         )
         self.gui_layout.frame = gui.Rect(r.get_right() - width, r.y, width, height)
 
-    def draw(self, geometries: List[o3d.geometry.Geometry], time: float) -> None:
+    def draw(self, geometries: list[o3d.geometry.Geometry], time: float) -> None:
         self._timestamp_label.text = f"Timestamp: {round(time, 1)}"
         self._wood_label.text = (
             f"Meters Processed: {round(self.stats.wood.total_meters_processed, 1)}"
         )
-        self._throughput_label.text = f"Throughput: {round(self.stats.wood.throughput_meters, 3)}"
+        self._throughput_label.text = (
+            f"Throughput: {round(self.stats.wood.throughput_meters, 3)}"
+        )
         self.scene.clear_geometry()
 
         for i, geometry in enumerate(geometries):

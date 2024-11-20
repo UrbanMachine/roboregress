@@ -1,6 +1,6 @@
 from abc import ABC
 from copy import deepcopy
-from typing import Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 
 import numpy as np
 import open3d as o3d
@@ -21,7 +21,11 @@ class BaseWoodConveyor(BaseSimObject, ABC, Generic[BaseParams]):
     color = (0.3, 0.3, 1.0)
 
     def __init__(
-        self, params: BaseParams, cells: List[BaseRobotCell], wood: Wood, wood_stats: WoodStats
+        self,
+        params: BaseParams,
+        cells: list[BaseRobotCell[Any]],
+        wood: Wood,
+        wood_stats: WoodStats,
     ):
         super().__init__()
         self.params = params
@@ -29,7 +33,7 @@ class BaseWoodConveyor(BaseSimObject, ABC, Generic[BaseParams]):
         self.wood = wood
         self.stats = wood_stats
 
-    def draw(self) -> List[o3d.geometry.Geometry]:
+    def draw(self) -> list[o3d.geometry.Geometry]:
         box_1: o3d.geometry.TriangleMesh = o3d.geometry.TriangleMesh.create_box(
             width=0.1, height=0.1, depth=ROBOT_WIDTH * 2
         )

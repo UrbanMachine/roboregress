@@ -8,7 +8,9 @@ from .utils.busyness import calculate_busyness_at_position
 from .utils.furthest_move import calculate_furthest_cell
 
 
-class GreedyBusynessWoodConveyor(BaseWoodConveyor["GreedyBusynessWoodConveyor.Parameters"]):
+class GreedyBusynessWoodConveyor(
+    BaseWoodConveyor["GreedyBusynessWoodConveyor.Parameters"]
+):
     """A simple conveyor that moves the wood forward by an increment after each cell
     has operated once"""
 
@@ -53,7 +55,6 @@ class GreedyBusynessWoodConveyor(BaseWoodConveyor["GreedyBusynessWoodConveyor.Pa
                 best_increment = increment
             increment += self.params.optimization_increment
 
-        # best_increment = best_increment or furthest_move
         assert best_increment < furthest_move
         assert best_increment >= 0
         return best_increment

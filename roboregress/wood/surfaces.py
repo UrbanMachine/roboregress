@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Dict, Tuple
 
 
 class Surface(Enum):
@@ -18,7 +17,7 @@ class Surface(Enum):
     """The -Z wood surface"""
 
 
-SURFACE_NORMALS: Dict[Surface, Tuple[float, float, float]] = {
+SURFACE_NORMALS: dict[Surface, tuple[float, float, float]] = {
     Surface.TOP: (0.0, 0.0, 1.0),
     Surface.BOTTOM: (0.0, 0.0, -1.0),
     Surface.LEFT: (0.0, 1.0, 0.0),
@@ -26,7 +25,7 @@ SURFACE_NORMALS: Dict[Surface, Tuple[float, float, float]] = {
 }
 """Useful for visualizations"""
 
-SURFACE_COLORS: Dict[Surface, Tuple[float, float, float]] = {
+SURFACE_COLORS: dict[Surface, tuple[float, float, float]] = {
     Surface.TOP: (0.0, 0.0, 1.0),
     Surface.BOTTOM: (0.5, 0.5, 1.0),
     Surface.LEFT: (0.0, 1.0, 0.0),

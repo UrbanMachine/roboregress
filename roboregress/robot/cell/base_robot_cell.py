@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from math import pi
-from typing import TYPE_CHECKING, Dict, Generic, List, Tuple, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 import numpy as np
 import numpy.typing as npt
@@ -9,7 +9,11 @@ from pydantic import BaseModel
 
 from roboregress.engine import BaseSimObject
 from roboregress.engine.base_simulation_object import LoopGenerator
-from roboregress.robot.vis_constants import ROBOT_DIST_FROM_CELL_CENTER, ROBOT_HEIGHT, ROBOT_WIDTH
+from roboregress.robot.vis_constants import (
+    ROBOT_DIST_FROM_CELL_CENTER,
+    ROBOT_HEIGHT,
+    ROBOT_WIDTH,
+)
 from roboregress.wood import SURFACE_NORMALS, Fastener, MoveScheduled, Surface, Wood
 
 if TYPE_CHECKING:
@@ -22,7 +26,7 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
     """An object in charge of doing _some_ work on some location along the wood axis"""
 
     class Parameters(BaseModel):
-        pick_probabilities: Dict[Fastener, float]
+        pick_probabilities: dict[Fastener, float]
 
         # Prefill these with defaults since configuration will override them
         start_pos: float = -1.0
@@ -35,7 +39,9 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
         def end_pos(self) -> float:
             return self.start_pos + self.working_width
 
-    def __init__(self, parameters: BaseParams, wood: Wood, stats_tracker: "StatsTracker"):
+    def __init__(
+        self, parameters: BaseParams, wood: Wood, stats_tracker: "StatsTracker"
+    ):
         """
         :param parameters: The pydantic parameters for the robot cell.
         :param wood: The wood to pick from
@@ -89,11 +95,11 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
 
     @property
     @abstractmethod
-    def color(self) -> Tuple[float, float, float]:
+    def color(self) -> tuple[float, float, float]:
         """The color to use when visualizing this robot cell"""
 
     @abstractmethod
-    def _run_pick(self) -> Tuple[List[Fastener], float]:
+    def _run_pick(self) -> tuple[list[Fastener], float]:
         """Do the smallest amount of picking that this robot can do in a single unit,
         and return how many seconds it took to do it."""
 
@@ -112,7 +118,7 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
         surface_dir = np.array(SURFACE_NORMALS[self.params.pickable_surface])
         position = surface_dir * ROBOT_DIST_FROM_CELL_CENTER
         position += (self.center, 0, 0)
-        return position  # type: ignore
+        return position
 
     def _calculate_workspace_box(self) -> o3d.geometry.TriangleMesh:
         box: o3d.geometry.TriangleMesh = o3d.geometry.TriangleMesh.create_box(
@@ -129,6 +135,6 @@ class BaseRobotCell(BaseSimObject, ABC, Generic[BaseParams]):
         box.paint_uniform_color(self._calculate_color())
         return box
 
-    def draw(self) -> List[o3d.geometry.TriangleMesh]:
+    def draw(self) -> list[o3d.geometry.TriangleMesh]:
         """Returns the position and rotation of what the geometry should be drawn as"""
         return [self._calculate_workspace_box()]

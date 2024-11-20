@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from roboregress.robot.statistics import WorkTimeTracker
 
 
-def test_time_tracker():
+def test_time_tracker() -> None:
     runtime = Mock()
     runtime.timestamp = 0
 

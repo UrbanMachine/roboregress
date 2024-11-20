@@ -1,3 +1,4 @@
+import logging
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -7,6 +8,8 @@ from roboregress.robot.reporting import render_stats
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO)
+
     parser = ArgumentParser()
     parser.add_argument("-v", "--visualize", action="store_true", default=False)
     parser.add_argument("-c", "--config", type=Path, required=True)
@@ -33,7 +36,7 @@ def main() -> None:
 
     save_to = args.save_to if args.save_to else args.config.with_suffix(".html")
     render_stats(stats, save_to=save_to, config_file=args.config)
-    print("Finished Simulation!")
+    logging.info("Finished Simulation!")
 
 
 if __name__ == "__main__":

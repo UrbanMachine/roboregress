@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Dict, Tuple
 
 
 class Fastener(Enum):
@@ -14,7 +13,7 @@ class Fastener(Enum):
     SCREW = "screw"
 
 
-FASTENER_COLORS: Dict[Fastener, Tuple[float, float, float]] = {
+FASTENER_COLORS: dict[Fastener, tuple[float, float, float]] = {
     Fastener.OFFSET_NAIL: (0.0, 0.0, 1.0),
     Fastener.FLUSH_NAIL: (1.0, 0.2, 1.0),
     Fastener.STAPLE: (1.0, 0.1, 0.1),

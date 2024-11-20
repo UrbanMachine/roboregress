@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 from roboregress.wood.fasteners import Fastener
 
 from .base_rake import BaseRakeMixin
@@ -13,7 +11,7 @@ class Rake(BaseRakeMixin, BaseRobotCell["Rake.Parameters"]):
         rake_cycle_seconds: float
         """The seconds it takes to run the rake once"""
 
-    def _run_pick(self) -> Tuple[List[Fastener], float]:
+    def _run_pick(self) -> tuple[list[Fastener], float]:
         rake_to = self._get_distance_to_rake_to(
             wood=self._wood,
             workspace_start=self.params.start_pos,

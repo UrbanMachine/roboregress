@@ -6,7 +6,9 @@ from . import BaseWoodConveyor
 from .utils.furthest_move import calculate_furthest_cell
 
 
-class GreedyDistanceWoodConveyor(BaseWoodConveyor["GreedyDistanceWoodConveyor.Parameters"]):
+class GreedyDistanceWoodConveyor(
+    BaseWoodConveyor["GreedyDistanceWoodConveyor.Parameters"]
+):
     """A simple conveyor that moves the wood forward by an increment after each cell
     has operated once"""
 

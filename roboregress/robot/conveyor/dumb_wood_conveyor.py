@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -22,13 +22,16 @@ class DumbWoodConveyor(BaseWoodConveyor["DumbWoodConveyor.Parameters"]):
         """How fast the wood moves, in meters/second"""
 
     def __init__(
-        self, params: Parameters, cells: List[BaseRobotCell], wood: Wood, wood_stats: WoodStats
+        self,
+        params: Parameters,
+        cells: list[BaseRobotCell[Any]],
+        wood: Wood,
+        wood_stats: WoodStats,
     ):
         super().__init__(cells=cells, wood=wood, wood_stats=wood_stats, params=params)
 
     def _loop(self) -> LoopGenerator:
         while True:
-
             # Schedule work
             self.wood.schedule_move()
             while not self.wood.ready_for_move():
