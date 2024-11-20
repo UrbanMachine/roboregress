@@ -27,6 +27,9 @@ cruft = "^2.15"
 # Tracking: https://github.com/astral-sh/ruff/issues/458
 darglint = "^1.8.1"
 
+[tool.poetry.scripts]
+run_sim = "roboregress.scripts.run_sim:main"
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
