@@ -1,5 +1,5 @@
 # roboregress
-A system for numerical modeling different configurations of a lumber processing robot.
+A system for numerical modeling different configurations of a linear factory process with large workpieces (such as dimensional lumber)
 
 _________________
 
