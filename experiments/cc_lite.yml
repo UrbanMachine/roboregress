@@ -16,7 +16,7 @@ conveyor:
 #  move_increment: 0.25
 
 common_rake_params: &common_rake_params
-  rake_cycle_seconds: 4.0  # Actually 6.5
+  rake_cycle_seconds: 4.0
   working_width: 0.1
   pick_probabilities:
     offset_nail: 0.9
@@ -39,6 +39,9 @@ common_screw_manipulator_params: &common_screw_manipulator_params
     screw: 0.6
 
 pickers:
-  - <<: *common_rake_params
+  - <<: *common_rolling_rake_params
   - <<: *common_big_bird_params
+  - <<: *common_big_bird_params
+  - <<: *common_big_bird_params
+  - <<: *common_screw_manipulator_params
 
