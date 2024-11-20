@@ -1,4 +1,5 @@
-from typing import Generator, List, Optional
+import math
+from collections.abc import Generator
 
 import open3d as o3d
 import pytest
@@ -12,17 +13,17 @@ from roboregress.engine import (
 
 
 class BasicObject(BaseSimObject):
-    def __init__(self, delay: Optional[float]):
+    def __init__(self, delay: float | None):
         super().__init__()
         self.delay = delay
         self.call_count = 0
 
-    def _loop(self) -> Generator[Optional[float], None, None]:
+    def _loop(self) -> Generator[float | None, None, None]:
         while True:
             self.call_count += 1
             yield self.delay
 
-    def draw(self) -> List[o3d.geometry.Geometry]:
+    def draw(self) -> list[o3d.geometry.Geometry]:
         return []
 
 
@@ -91,7 +92,7 @@ def test_step() -> None:
     }
 
 
-def test_fails_if_step_doesnt_change_timestamp():
+def test_fails_if_step_doesnt_change_timestamp() -> None:
     """Test that an exception is raised if the timestamp isn't incremented between
     two steps"""
     runtime = SimulationRuntime()
@@ -108,13 +109,13 @@ def test_fails_if_step_doesnt_change_timestamp():
     assert obj_a.call_count == 2
 
 
-def test_stepping_without_objects_fails():
+def test_stepping_without_objects_fails() -> None:
     runtime = SimulationRuntime()
     with pytest.raises(NoObjectsToStep):
         runtime.step()
 
 
-def test_step_until():
+def test_step_until() -> None:
     runtime = SimulationRuntime()
     obj_a = BasicObject(delay=1.1)
     runtime.register(obj_a)
@@ -122,4 +123,4 @@ def test_step_until():
     runtime.step_until(10000)
 
     assert obj_a.call_count == 9092
-    assert runtime.timestamp == 10000.1
+    assert math.isclose(runtime.timestamp, 10000.1)

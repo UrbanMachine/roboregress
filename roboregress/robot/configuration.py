@@ -1,13 +1,17 @@
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import Any
 
 import yaml
 from pydantic import BaseModel
 
 from roboregress.engine import SimulationRuntime
-from roboregress.robot.cell import BigBird, Rake
+from roboregress.robot.cell import BaseRobotCell, BigBird, Rake, RollingRake
 from roboregress.robot.cell.screw_manipulator import ScrewManipulator
-from roboregress.robot.conveyor import DumbWoodConveyor, GreedyWoodConveyor
+from roboregress.robot.conveyor import (
+    DumbWoodConveyor,
+    GreedyBusynessWoodConveyor,
+    GreedyDistanceWoodConveyor,
+)
 from roboregress.robot.statistics import StatsTracker
 from roboregress.wood import Surface, Wood
 
@@ -15,7 +19,11 @@ from roboregress.wood import Surface, Wood
 class SimConfig(BaseModel):
     wood: Wood.Parameters
 
-    conveyor: Union[DumbWoodConveyor.Parameters, GreedyWoodConveyor.Parameters]
+    conveyor: (
+        GreedyBusynessWoodConveyor.Parameters
+        | DumbWoodConveyor.Parameters
+        | GreedyDistanceWoodConveyor.Parameters
+    )
 
     default_cell_distance: float
     """Distance between robot cells"""
@@ -23,21 +31,28 @@ class SimConfig(BaseModel):
     default_cell_width: float
     """Workspace within a cell"""
 
-    pickers: List[Union[Rake.Parameters, BigBird.Parameters, ScrewManipulator.Parameters]]
+    pickers: list[
+        Rake.Parameters
+        | BigBird.Parameters
+        | ScrewManipulator.Parameters
+        | RollingRake.Parameters
+    ]
 
 
 CONVEYOR_MAPPING = {
     DumbWoodConveyor.Parameters: DumbWoodConveyor,
-    GreedyWoodConveyor.Parameters: GreedyWoodConveyor,
+    GreedyDistanceWoodConveyor.Parameters: GreedyDistanceWoodConveyor,
+    GreedyBusynessWoodConveyor.Parameters: GreedyBusynessWoodConveyor,
 }
-ROBOT_MAPPING = {
+ROBOT_MAPPING: dict[type[BaseModel], type[BaseRobotCell[Any]]] = {
     Rake.Parameters: Rake,
+    RollingRake.Parameters: RollingRake,
     BigBird.Parameters: BigBird,
     ScrewManipulator.Parameters: ScrewManipulator,
 }
 
 
-def runtime_from_file(file: Path) -> Tuple[SimulationRuntime, StatsTracker]:
+def runtime_from_file(file: Path) -> tuple[SimulationRuntime, StatsTracker]:
     with file.open() as f:
         config = SimConfig.parse_obj(yaml.safe_load(f))
 
@@ -58,14 +73,14 @@ def runtime_from_file(file: Path) -> Tuple[SimulationRuntime, StatsTracker]:
 
         for surface in Surface:
             robot_type = ROBOT_MAPPING[type(params)]
-            params = params.copy(update={"pickable_surface": surface})
-            robot = robot_type(params, wood, stats)
+            updated_surface_params = params.copy(update={"pickable_surface": surface})
+            robot = robot_type(updated_surface_params, wood, stats)
             cells.append(robot)
 
         pos += config.default_cell_distance + params.working_width
 
     conveyor = CONVEYOR_MAPPING[type(config.conveyor)](
-        params=config.conveyor, wood=wood, cells=cells
+        params=config.conveyor, wood=wood, cells=cells, wood_stats=stats.wood
     )
 
     runtime.register(*cells, wood, conveyor)

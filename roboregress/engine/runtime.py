@@ -1,8 +1,10 @@
+import functools
+import operator
 import random
-from typing import Dict, List
 
 import numpy as np
 import open3d as o3d
+from tqdm.auto import tqdm
 
 from .base_simulation_object import BaseSimObject
 from .visualizer import Visualizer
@@ -24,10 +26,9 @@ class SimulationRuntime:
     """An object that can run the simulation engine"""
 
     def __init__(self) -> None:
-        self._visualization = False
         self._timestamp: float = 0
-        self._sim_objects: List[BaseSimObject] = []
-        self._sleeping_objects: Dict[BaseSimObject, float] = {}
+        self._sim_objects: list[BaseSimObject] = []
+        self._sleeping_objects: dict[BaseSimObject, float] = {}
         """Holds a list of objects currently waiting to be reactivated once a certain
         timestamp is reached."""
 
@@ -46,6 +47,7 @@ class SimulationRuntime:
         """Step the simulation
 
         :raises NoObjectsToStep: If the runtime has no objects registered
+        :raises ValueError: If there's an unexpected inconsistency with timestamps
         """
         if len(self._sim_objects) == 0:
             raise NoObjectsToStep("The runtime has no associated objects!")
@@ -53,7 +55,11 @@ class SimulationRuntime:
         # Get the next-to-awake timestamp in the _sleeping_objects list
         if len(self._sleeping_objects):
             next_awake_timestamp = sorted(self._sleeping_objects.values())[0]
-            assert next_awake_timestamp > self._timestamp
+            if next_awake_timestamp < self._timestamp:
+                raise ValueError(
+                    f"All sleeping objects should be woken on the same timestamp! "
+                    f"{next_awake_timestamp=} {self.timestamp=}"
+                )
             self._timestamp = next_awake_timestamp
 
         for sim_object in self._sim_objects:
@@ -62,45 +68,59 @@ class SimulationRuntime:
                 if self._timestamp < self._sleeping_objects[sim_object]:
                     continue
                 else:
-                    self._sleeping_objects.pop(sim_object)
+                    wake_ts = self._sleeping_objects.pop(sim_object)
+                    assert wake_ts == self._timestamp
 
             sleep_seconds = sim_object.step()
-            if sleep_seconds is not None and sleep_seconds != 0:
-                assert isinstance(sleep_seconds, float)
-                # Round at 10 decimal places to help prevent floating point drift
-                next_awake = round(self.timestamp + sleep_seconds, 10)
-                self._sleeping_objects[sim_object] = next_awake
 
-    def step_until(self, timestamp: float, visualization: bool = False) -> None:
+            if sleep_seconds is not None:
+                assert isinstance(sleep_seconds, float)
+                if sleep_seconds <= 0:
+                    raise ValueError(
+                        f"Sleep must be a positive number! {sleep_seconds}"
+                    )
+
+                self._sleeping_objects[sim_object] = self.timestamp + sleep_seconds
+
+    def step_until(
+        self, timestamp: float, visualizer: Visualizer | None = None
+    ) -> None:
         """Run the engine until it is at or past the specified timestamp"""
         consecutive_steps_without_change = 0
         """Track if theres ever more than 1 step in a row where the timestamp didn't
         increment. This can happen if the objects aren't yielding sleeps, which means
         the user of this runtime isn't actually doing anything useful with it...
         """
-        visualizer = Visualizer() if visualization else None
+        with tqdm(total=timestamp, unit="s") as progress_bar:
+            while self._timestamp < timestamp:
+                # Update progress bar
+                progress_bar.n = round(self._timestamp)
+                progress_bar.refresh(progress_bar.lock_args)
 
-        while self._timestamp < timestamp:
-            # TODO: Add a check to make sure timestamp changes between consecutive runs
-            previous_stamp = self.timestamp
-            self.step()
+                # Update visualization
+                if visualizer and consecutive_steps_without_change == 0:
+                    # Flatten the list of lists
+                    geometries: list[o3d.geometry.Geometry] = functools.reduce(
+                        operator.iadd, [o.draw() for o in self._sim_objects], []
+                    )
+                    geometries.append(
+                        o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3)
+                    )
+                    visualizer.draw(geometries, self.timestamp)
 
-            if previous_stamp == self.timestamp:
-                consecutive_steps_without_change += 1
-            else:
-                consecutive_steps_without_change = 0
+                # Step the system
+                previous_stamp = self.timestamp
+                self.step()
 
-            if consecutive_steps_without_change > 1:
-                raise NoTimestampProgression(
-                    f"There have been {consecutive_steps_without_change} simulation "
-                    f"steps in a row without the timestamp changing. This means that "
-                    f"the simulation objects in the engine aren't requesting sleeps! "
-                    f"Is there a logic error somewhere?"
-                )
+                if previous_stamp == self.timestamp:
+                    consecutive_steps_without_change += 1
+                else:
+                    consecutive_steps_without_change = 0
 
-            if visualizer:
-                geometries: List[o3d.geometry.Geometry] = sum(
-                    [o.draw() for o in self._sim_objects], []
-                )
-                geometries.append(o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3))
-                visualizer.draw(geometries, self.timestamp)
+                if consecutive_steps_without_change > 1:
+                    raise NoTimestampProgression(
+                        f"There have been {consecutive_steps_without_change} simulation"
+                        f" steps in a row without the timestamp changing. This means "
+                        f"that the simulation objects in the engine aren't requesting "
+                        f"sleeps! Is there a logic error somewhere?"
+                    )
